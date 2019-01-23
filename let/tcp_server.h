@@ -3,8 +3,11 @@
 namespace let {
     class TcpServer {
     public:
+        void start();
+
+        void setCallback();
 
     private:
-        evconnlistener *listener_;
+
     };
 }
