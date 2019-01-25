@@ -11,11 +11,15 @@
 namespace let {
     LogLevel Logger::g_log_level = DEBUG;
 
-    Logger::Logger(const std::string &file_name, const std::string &func_name, int line, corn::LogLevel level)
+    Logger::Logger(const std::string &file_name, const std::string &func_name, int line, LogLevel level)
             : file_name_(file_name),
               line_(line),
               func_name_(func_name),
               level_(level) {
+    }
+
+    void Logger::setLogLevel(let::LogLevel level) {
+        g_log_level = level;
     }
 
     Logger::~Logger() {
