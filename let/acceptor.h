@@ -9,7 +9,7 @@
 #include <event2/event.h>
 #include <vector>
 
-#include "addr.h"
+#include "ip_addr.h"
 #include "conn_hub.h"
 
 namespace let {
@@ -27,7 +27,6 @@ namespace let {
                           makeListenSocket(ip_addr)
                   )) {
         }
-
 
     private:
         static void newConnectionCallback(struct evconnlistener *listener,

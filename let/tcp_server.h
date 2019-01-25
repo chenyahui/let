@@ -5,7 +5,7 @@ namespace let {
     public:
         void start();
 
-        void setCallback();
+        void setMessageCallback();
 
     private:
 

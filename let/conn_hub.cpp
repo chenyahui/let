@@ -13,10 +13,17 @@ namespace let {
 
 
         bufferevent_setcb(buf_ev, connectionReadCallback, connectionWriteCallback, connectionEventCallback, conn.get());
-
     }
 
     void ConnectionHub::connectionReadCallback(struct bufferevent *bev, void *ctx) {
+
+    }
+
+    void ConnectionHub::connectionWriteCallback(struct bufferevent *bev, void *ctx) {
+
+    }
+
+    void ConnectionHub::connectionEventCallback(struct bufferevent *bev, short what, void *ctx) {
 
     }
 }

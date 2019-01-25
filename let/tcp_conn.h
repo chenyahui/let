@@ -8,12 +8,14 @@
 #include <event2/bufferevent.h>
 #include <memory>
 
-#include "addr.h"
+#include "ip_addr.h"
 
 namespace let {
     class TcpConnection {
     public:
         TcpConnection(bufferevent *buf_ev);
+
+        void send();
 
     private:
         IpAddress ip_addr_;
