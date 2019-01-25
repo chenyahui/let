@@ -7,6 +7,7 @@
 
 #include <event2/event.h>
 #include <map>
+#include <thread>
 
 #include "tcp_conn.h"
 
@@ -17,15 +18,22 @@ namespace let {
      */
     class ConnectionHub {
     public:
-        ConnectionHub()
+        explicit ConnectionHub()
                 : ev_base_(event_base_new()) {
         }
 
         void start() {
-            event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
+            thread_ = std::thread([=]() {
+                event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
+            });
         }
 
-        void addConnection(evutil_socket_t fd);
+        void stop() {
+            event_base_loopbreak(ev_base_);
+            thread_.join();
+        }
+
+        void addConnection(evutil_socket_t fd, const std::string &ip_port);
 
     private:
         static void connectionReadCallback(struct bufferevent *bev, void *ctx);
@@ -37,6 +45,8 @@ namespace let {
     private:
         event_base *ev_base_;
         std::map<std::string, TcpConnectionPtr> connections_;
+
+        std::thread thread_;
     };
 }
 #endif //LET_CONN_HUB_H

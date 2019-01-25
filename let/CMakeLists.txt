@@ -11,10 +11,9 @@ add_library(
         event_loop.h
         conn_hub.h
         conn_hub.cpp
-        ip_addr.h
-        ip_addr.cpp
         worker.h
         socket.h
+        socket.cpp
         logger.h
         logger.cpp
         util.h

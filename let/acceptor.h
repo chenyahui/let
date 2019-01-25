@@ -9,7 +9,6 @@
 #include <event2/event.h>
 #include <vector>
 
-#include "ip_addr.h"
 #include "conn_hub.h"
 
 namespace let {
@@ -31,6 +30,7 @@ namespace let {
         evconnlistener *listener_;
 
         std::vector<ConnectionHub *> conn_hubs_;
+        std::size_t next_hub_ = 0;
     };
 }
 #endif //LET_ACCEPTOR_H

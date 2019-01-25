@@ -8,6 +8,7 @@
 #include <event2/buffer.h>
 
 namespace let {
+    // c++ wrapper of evbuffer
     class Buffer {
     public:
         Buffer(evbuffer *ev_buf) : ev_buf_(ev_buf) {

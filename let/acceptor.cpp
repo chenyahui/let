@@ -7,6 +7,7 @@
 
 #include "acceptor.h"
 #include "logger.h"
+#include "socket.h"
 
 namespace let {
 
@@ -41,17 +42,23 @@ namespace let {
         }
     }
 
-
     Acceptor::~Acceptor() {
         event_base_free(ev_base_);
         evconnlistener_free(listener_);
     }
 
-    void Acceptor::newConnectionCallback(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address,
-                                         int socklen, void *ctx) {
+    void Acceptor::newConnectionCallback(struct evconnlistener *listener,
+                                         evutil_socket_t fd,
+                                         struct sockaddr *address,
+                                         int socklen,
+                                         void *ctx) {
+        std::string ip_port = sockaddr_to_ip_port(address);
 
         // 此处得到的fd，libevent会帮助我们设置为noblock的
         auto acceptor = (Acceptor *) ctx;
-        acceptor->conn_hubs_[0]->addConnection(fd);
+
+        acceptor->conn_hubs_[acceptor->next_hub_]->addConnection(fd, ip_port);
+
+        acceptor->next_hub_ = (acceptor->next_hub_ + 1) % acceptor->conn_hubs_.size();
     }
 }

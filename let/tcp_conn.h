@@ -7,8 +7,7 @@
 
 #include <event2/bufferevent.h>
 #include <memory>
-
-#include "ip_addr.h"
+#include <string>
 
 namespace let {
     class TcpConnection {
@@ -18,7 +17,7 @@ namespace let {
         void send();
 
     private:
-        IpAddress ip_addr_;
+        std::string ip_addr_;
         bufferevent *buf_ev_;
     };
 
