@@ -8,7 +8,6 @@ add_library(
         tcp_conn.cpp
         acceptor.h
         acceptor.cpp
-        event_loop.h
         conn_hub.h
         conn_hub.cpp
         worker.h

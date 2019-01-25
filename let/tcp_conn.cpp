@@ -16,6 +16,8 @@ namespace let {
 
         bufferevent_enable(buf_ev, EV_READ);
         bufferevent_disable(buf_ev, EV_WRITE);
+
+        readCallback(buf_ev, this);
     }
 
     void TcpConnection::send(const void *message, size_t len) {
