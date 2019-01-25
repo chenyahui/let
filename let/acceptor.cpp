@@ -3,29 +3,55 @@
 //
 
 #include <event2/util.h>
+#include <cstring>
 
 #include "acceptor.h"
 #include "logger.h"
 
 namespace let {
+
+    /* recognized formats are:
+	 * [ipv6]:port
+	 * ipv6
+	 * [ipv6]
+	 * ipv4:port
+	 * ipv4
+	 */
+    Acceptor::Acceptor(const std::string &ip_addr)
+            : ev_base_(event_base_new()) {
+        sockaddr_in listen_on_addr{};
+
+        int socklen = sizeof(listen_on_addr);
+
+        if (evutil_parse_sockaddr_port(ip_addr.c_str(),
+                                       (struct sockaddr *) &listen_on_addr,
+                                       &socklen)) {
+            LOG_FATAL << "ip format is wrong: " << ip_addr;
+        }
+
+        listener_ = evconnlistener_new_bind(ev_base_,
+                                            newConnectionCallback,
+                                            this,
+                                            LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
+                                            -1,
+                                            (struct sockaddr *) &listen_on_addr,
+                                            socklen);
+        if (!listener_) {
+            LOG_FATAL << "Couldn't open listener";
+        }
+    }
+
+
+    Acceptor::~Acceptor() {
+        event_base_free(ev_base_);
+        evconnlistener_free(listener_);
+    }
+
     void Acceptor::newConnectionCallback(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address,
                                          int socklen, void *ctx) {
 
+        // 此处得到的fd，libevent会帮助我们设置为noblock的
         auto acceptor = (Acceptor *) ctx;
         acceptor->conn_hubs_[0]->addConnection(fd);
-    }
-
-    evutil_socket_t Acceptor::makeListenSocket(const let::IpAddress &ip_addr) {
-        evutil_socket_t socket_fd = ::socket(ip_addr.toIpV4(), SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC,
-                                             IPPROTO_TCP);;
-        if (socket_fd < 0) {
-            LOG_FATAL << "create socket failed";
-        }
-
-        if (evutil_make_socket_nonblocking(socket_fd) < 0) {
-            LOG_FATAL << "make socket nonblocking failed";
-        }
-
-        return 0;
     }
 }

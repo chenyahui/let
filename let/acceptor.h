@@ -16,17 +16,9 @@ namespace let {
     // Acceptor仅负责接收新连接
     class Acceptor {
     public:
-        explicit Acceptor(const IpAddress &ip_addr)
-                : ev_base_(event_base_new()),
-                  listener_(evconnlistener_new(
-                          ev_base_,
-                          newConnectionCallback,
-                          this,
-                          LEV_OPT_CLOSE_ON_FREE,
-                          -1,
-                          makeListenSocket(ip_addr)
-                  )) {
-        }
+        explicit Acceptor(const std::string &ipaddr);
+
+        ~Acceptor();
 
     private:
         static void newConnectionCallback(struct evconnlistener *listener,
@@ -34,8 +26,6 @@ namespace let {
                                           struct sockaddr *address,
                                           int socklen,
                                           void *ctx);
-
-        evutil_socket_t makeListenSocket(const IpAddress &ip_addr);
 
         event_base *ev_base_;
         evconnlistener *listener_;
