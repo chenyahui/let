@@ -19,7 +19,12 @@ namespace let {
 
         ~Acceptor();
 
+        void start();
+
     private:
+        void schedule(evutil_socket_t fd, struct sockaddr *address,
+                      int socklen);
+
         static void newConnectionCallback(struct evconnlistener *listener,
                                           evutil_socket_t fd,
                                           struct sockaddr *address,

@@ -9,16 +9,31 @@
 #include <memory>
 #include <string>
 
+#include "callback.h"
+#include "buffer.h"
+
 namespace let {
     class TcpConnection {
     public:
-        TcpConnection(bufferevent *buf_ev);
+        explicit TcpConnection(bufferevent *buf_ev);
 
-        void send();
+        void send(const void *message, size_t len);
+
+    private:
+        static void readCallback(struct bufferevent *bev, void *ctx);
+
+        static void writeCallback(struct bufferevent *bev, void *ctx);
+
+        static void errorCallback(struct bufferevent *bev, short what, void *ctx);
 
     private:
         std::string ip_addr_;
         bufferevent *buf_ev_;
+
+        InBuffer in_buf_;
+        OutBuffer out_buf_;
+
+        MessageCallback message_callback_;
     };
 
     using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

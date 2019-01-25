@@ -19,4 +19,5 @@ add_library(
         util.h
         util.cpp
         buffer.h
+        callback.h
 )

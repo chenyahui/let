@@ -2,10 +2,46 @@
 // Created by yahuichen on 2019/1/23.
 //
 
+#include <event2/event.h>
+
 #include "tcp_conn.h"
 
 namespace let {
     TcpConnection::TcpConnection(bufferevent *buf_ev)
-            : buf_ev_(buf_ev) {
+            : buf_ev_(buf_ev),
+              in_buf_(bufferevent_get_input(buf_ev)),
+              out_buf_(bufferevent_get_output(buf_ev)) {
+
+        bufferevent_setcb(buf_ev, readCallback, writeCallback, errorCallback, this);
+
+        bufferevent_enable(buf_ev, EV_READ);
+        bufferevent_disable(buf_ev, EV_WRITE);
+    }
+
+    void TcpConnection::send(const void *message, size_t len) {
+
+        out_buf_.add(message, len);
+
+        bufferevent_setcb(buf_ev_,
+                          nullptr,
+                          writeCallback,
+                          errorCallback,
+                          this);
+
+        bufferevent_enable(buf_ev_, EV_READ | EV_WRITE);
+    }
+
+    void TcpConnection::readCallback(struct bufferevent *bev, void *ctx) {
+        auto conn = (TcpConnection *) ctx;
+
+        conn->message_callback_(conn);
+    }
+
+    void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx) {
+        auto conn = (TcpConnection *) ctx;
+    }
+
+    void TcpConnection::errorCallback(struct bufferevent *bev, short what, void *ctx) {
+        auto conn = (TcpConnection *) ctx;
     }
 }

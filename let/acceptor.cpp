@@ -47,18 +47,29 @@ namespace let {
         evconnlistener_free(listener_);
     }
 
+    void Acceptor::start() {
+        for (int i = 0; i < conn_hubs_.size(); ++i) {
+            conn_hubs_[0]->start();
+        }
+    }
+
     void Acceptor::newConnectionCallback(struct evconnlistener *listener,
                                          evutil_socket_t fd,
                                          struct sockaddr *address,
                                          int socklen,
                                          void *ctx) {
+
+        auto acceptor = (Acceptor *) ctx;
+        acceptor->schedule(fd, address, socklen);
+    }
+
+    void Acceptor::schedule(evutil_socket_t fd, struct sockaddr *address, int socklen) {
         std::string ip_port = sockaddr_to_ip_port(address);
 
         // 此处得到的fd，libevent会帮助我们设置为noblock的
-        auto acceptor = (Acceptor *) ctx;
 
-        acceptor->conn_hubs_[acceptor->next_hub_]->addConnection(fd, ip_port);
+        conn_hubs_[next_hub_]->addConnection(fd, ip_port);
 
-        acceptor->next_hub_ = (acceptor->next_hub_ + 1) % acceptor->conn_hubs_.size();
+        next_hub_ = (next_hub_ + 1) % conn_hubs_.size();
     }
 }

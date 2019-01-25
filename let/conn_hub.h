@@ -22,25 +22,14 @@ namespace let {
                 : ev_base_(event_base_new()) {
         }
 
-        void start() {
-            thread_ = std::thread([=]() {
-                event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
-            });
-        }
+        ~ConnectionHub();
 
-        void stop() {
-            event_base_loopbreak(ev_base_);
-            thread_.join();
-        }
+        void start();
 
+        void stop();
+
+        // todo use std::move
         void addConnection(evutil_socket_t fd, const std::string &ip_port);
-
-    private:
-        static void connectionReadCallback(struct bufferevent *bev, void *ctx);
-
-        static void connectionWriteCallback(struct bufferevent *bev, void *ctx);
-
-        static void connectionEventCallback(struct bufferevent *bev, short what, void *ctx);
 
     private:
         event_base *ev_base_;

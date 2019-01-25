@@ -10,21 +10,22 @@ namespace let {
         auto buf_ev = bufferevent_socket_new(ev_base_, fd, 0);
 
         auto conn = std::make_shared<TcpConnection>(buf_ev);
-
         connections_.insert(std::make_pair(ip_port, conn));
 
-        bufferevent_setcb(buf_ev, connectionReadCallback, connectionWriteCallback, connectionEventCallback, conn.get());
     }
 
-    void ConnectionHub::connectionReadCallback(struct bufferevent *bev, void *ctx) {
-
+    void ConnectionHub::start() {
+        thread_ = std::thread([=]() {
+            event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
+        });
     }
 
-    void ConnectionHub::connectionWriteCallback(struct bufferevent *bev, void *ctx) {
-
+    void ConnectionHub::stop() {
+        event_base_loopbreak(ev_base_);
+        thread_.join();
     }
 
-    void ConnectionHub::connectionEventCallback(struct bufferevent *bev, short what, void *ctx) {
-
+    ConnectionHub::~ConnectionHub() {
+        stop();
     }
 }
