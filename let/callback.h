@@ -7,10 +7,11 @@
 
 #include <functional>
 
-namespace let {
-    class TcpConnection;
+namespace let
+{
+class TcpConnection;
 
-    using MessageCallback = std::function<void(TcpConnection *)>;
+using MessageCallback = std::function<void(TcpConnection *)>;
 
-}
+} // namespace let
 #endif //LET_CALLBACK_H

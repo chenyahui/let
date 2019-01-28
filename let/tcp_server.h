@@ -3,24 +3,27 @@
 #include "acceptor.h"
 #include "callback.h"
 
-namespace let {
+namespace let
+{
 
-    struct ServerOptions {
-        size_t hub_num;
-        std::string ip_port;
-    };
+struct ServerOptions
+{
+    size_t hub_num;
+    std::string ip_port;
+};
 
-    class TcpServer {
-    public:
-        void run(ServerOptions options);
+class TcpServer
+{
+  public:
+    void run(ServerOptions options);
 
-        void run();
+    void run();
 
-        void stop();
+    void stop();
 
-        void setMessageCallback(const MessageCallback &messageCallback);
+    void setMessageCallback(const MessageCallback &messageCallback);
 
-    private:
-        Acceptor *acceptor_;
-    };
+  private:
+    Acceptor *acceptor_;
+};
 } // namespace let

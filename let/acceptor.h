@@ -11,32 +11,34 @@
 
 #include "conn_hub.h"
 
-namespace let {
-    // Acceptor仅负责接收新连接
-    class Acceptor {
-    public:
-        explicit Acceptor(const std::string &ipaddr);
+namespace let
+{
+// Acceptor仅负责接收新连接
+class Acceptor
+{
+  public:
+    explicit Acceptor(const std::string &ipaddr);
 
-        ~Acceptor();
+    ~Acceptor();
 
-        void start();
+    void start();
 
-    private:
-        void schedule(evutil_socket_t fd, struct sockaddr *address,
-                      int socklen);
+  private:
+    void schedule(evutil_socket_t fd, struct sockaddr *address,
+                  int socklen);
 
-        static void newConnectionCallback(struct evconnlistener *listener,
-                                          evutil_socket_t fd,
-                                          struct sockaddr *address,
-                                          int socklen,
-                                          void *ctx);
+    static void newConnectionCallback(struct evconnlistener *listener,
+                                      evutil_socket_t fd,
+                                      struct sockaddr *address,
+                                      int socklen,
+                                      void *ctx);
 
-    private:
-        event_base *ev_base_;
-        evconnlistener *listener_;
+  private:
+    event_base *ev_base_;
+    evconnlistener *listener_;
 
-        std::vector<ConnectionHub *> conn_hubs_;
-        std::size_t next_hub_ = 0;
-    };
-}
+    std::vector<ConnectionHub *> conn_hubs_;
+    std::size_t next_hub_ = 0;
+};
+} // namespace let
 #endif //LET_ACCEPTOR_H

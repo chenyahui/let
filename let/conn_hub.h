@@ -11,31 +11,34 @@
 
 #include "tcp_conn.h"
 
-namespace let {
-    /**
+namespace let
+{
+/**
      * A ConnectionHub is responsible of managing connections.
      * A ConnectionHub contains an event_loop, that all connections register on it.
      */
-    class ConnectionHub {
-    public:
-        explicit ConnectionHub()
-                : ev_base_(event_base_new()) {
-        }
+class ConnectionHub
+{
+  public:
+    explicit ConnectionHub()
+        : ev_base_(event_base_new())
+    {
+    }
 
-        ~ConnectionHub();
+    ~ConnectionHub();
 
-        void start();
+    void start();
 
-        void stop();
+    void stop();
 
-        // todo use std::move
-        void addConnection(evutil_socket_t fd, const std::string &ip_port);
+    // todo use std::move
+    void addConnection(evutil_socket_t fd, const std::string &ip_port);
 
-    private:
-        event_base *ev_base_;
-        std::map<std::string, TcpConnectionPtr> connections_;
+  private:
+    event_base *ev_base_;
+    std::map<std::string, TcpConnectionPtr> connections_;
 
-        std::thread thread_;
-    };
-}
+    std::thread thread_;
+};
+} // namespace let
 #endif //LET_CONN_HUB_H

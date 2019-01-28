@@ -4,9 +4,10 @@
 
 #ifndef LET_WORKER_H
 #define LET_WORKER_H
-namespace let {
-    class TaskWorker {
-
-    };
-}
+namespace let
+{
+class TaskWorker
+{
+};
+} // namespace let
 #endif //LET_WORKER_H

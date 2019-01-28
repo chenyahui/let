@@ -12,32 +12,34 @@
 #include "callback.h"
 #include "buffer.h"
 
-namespace let {
-    class TcpConnection {
-    public:
-        explicit TcpConnection(bufferevent *buf_ev);
+namespace let
+{
+class TcpConnection
+{
+  public:
+    explicit TcpConnection(bufferevent *buf_ev);
 
-        ~TcpConnection();
+    ~TcpConnection();
 
-        void send(const void *message, size_t len);
+    void send(const void *message, size_t len);
 
-    private:
-        static void readCallback(struct bufferevent *bev, void *ctx);
+  private:
+    static void readCallback(struct bufferevent *bev, void *ctx);
 
-        static void writeCallback(struct bufferevent *bev, void *ctx);
+    static void writeCallback(struct bufferevent *bev, void *ctx);
 
-        static void errorCallback(struct bufferevent *bev, short what, void *ctx);
+    static void errorCallback(struct bufferevent *bev, short what, void *ctx);
 
-    private:
-        std::string ip_addr_;
-        bufferevent *buf_ev_;
+  private:
+    std::string ip_addr_;
+    bufferevent *buf_ev_;
 
-        InBuffer in_buf_;
-        OutBuffer out_buf_;
+    InBuffer in_buf_;
+    OutBuffer out_buf_;
 
-        MessageCallback message_callback_;
-    };
+    MessageCallback message_callback_;
+};
 
-    using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
-}
+using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
+} // namespace let
 #endif //LET_TCP_CONN_H

@@ -8,8 +8,8 @@
 #include <string>
 #include <netinet/in.h>
 
-namespace let {
-    std::string sockaddr_to_ip_port(const struct sockaddr *addr);
-
+namespace let
+{
+std::string sockaddr_to_ip_port(const struct sockaddr *addr);
 }
 #endif //LET_SOCKET_H
