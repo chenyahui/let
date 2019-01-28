@@ -24,7 +24,7 @@ namespace let {
             return ev_buf_;
         }
 
-        int removeToBuffer(struct evbuffer *src, struct evbuffer *dst,
+        int moveToBuffer(struct evbuffer *src, struct evbuffer *dst,
                            size_t datlen) {
             return evbuffer_remove(src, dst, datlen);
         }
@@ -92,7 +92,5 @@ namespace let {
             return evbuffer_add_buffer(ev_buf_, buffer) == 0;
         }
     };
-
-
 }
 #endif //LET_BUFFER_H

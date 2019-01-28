@@ -1,13 +1,22 @@
 #include <event2/listener.h>
 
-#include "callback.h"
 #include "acceptor.h"
+#include "callback.h"
 
 namespace let {
 
+    struct ServerOptions {
+        size_t hub_num;
+        std::string ip_port;
+    };
+
     class TcpServer {
     public:
-        void start();
+        void run(ServerOptions options);
+
+        void run();
+
+        void stop();
 
         void setMessageCallback(const MessageCallback &messageCallback);
 

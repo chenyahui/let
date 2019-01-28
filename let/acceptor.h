@@ -31,6 +31,7 @@ namespace let {
                                           int socklen,
                                           void *ctx);
 
+    private:
         event_base *ev_base_;
         evconnlistener *listener_;
 

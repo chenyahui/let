@@ -20,6 +20,10 @@ namespace let {
         readCallback(buf_ev, this);
     }
 
+    TcpConnection::~TcpConnection() {
+        bufferevent_free(buf_ev_);
+    }
+
     void TcpConnection::send(const void *message, size_t len) {
 
         out_buf_.add(message, len);

@@ -17,6 +17,8 @@ namespace let {
     public:
         explicit TcpConnection(bufferevent *buf_ev);
 
+        ~TcpConnection();
+
         void send(const void *message, size_t len);
 
     private:
