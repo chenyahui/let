@@ -27,6 +27,11 @@ TcpConnection::~TcpConnection()
     bufferevent_free(buf_ev_);
 }
 
+evutil_socket_t TcpConnection::getFd()
+{
+    return bufferevent_getfd(buf_ev_);
+}
+
 void TcpConnection::send(const void *message, size_t len)
 {
 
@@ -57,4 +62,15 @@ void TcpConnection::errorCallback(struct bufferevent *bev, short what, void *ctx
 {
     auto conn = (TcpConnection *)ctx;
 }
+
+InBuffer *TcpConnection::inputBuffer()
+{
+    return &in_buf_;
+}
+
+OutBuffer *TcpConnection::outBuffer()
+{
+    return &out_buf_;
+}
+
 } // namespace let

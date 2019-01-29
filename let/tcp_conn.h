@@ -8,6 +8,7 @@
 #include <event2/bufferevent.h>
 #include <memory>
 #include <string>
+#include <boost/any.hpp>
 
 #include "callback.h"
 #include "buffer.h"
@@ -22,6 +23,13 @@ class TcpConnection
     ~TcpConnection();
 
     void send(const void *message, size_t len);
+
+    evutil_socket_t getFd();
+
+    InBuffer* inputBuffer();
+
+    OutBuffer* outBuffer();
+
 
   private:
     static void readCallback(struct bufferevent *bev, void *ctx);

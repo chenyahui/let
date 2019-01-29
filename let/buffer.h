@@ -72,7 +72,7 @@ class InBuffer : Buffer
         return evbuffer_pullup(ev_buf_, size);
     }
 
-    boost::string_view readLine(enum evbuffer_eol_style eol_style)
+    boost::string_view readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)
     {
         size_t n_read_out = 0;
         char *data = evbuffer_readln(ev_buf_, &n_read_out, eol_style);
