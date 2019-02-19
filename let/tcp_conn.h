@@ -17,35 +17,40 @@ namespace let
 {
 class TcpConnection
 {
-  public:
-    explicit TcpConnection(bufferevent *buf_ev);
+public:
+  explicit TcpConnection(bufferevent *buf_ev);
 
-    ~TcpConnection();
+  ~TcpConnection();
 
-    void send(const void *message, size_t len);
+  void send(const void *message, size_t len);
 
-    evutil_socket_t getFd();
+  evutil_socket_t getFd();
 
-    InBuffer* inputBuffer();
+  InBuffer *inputBuffer();
 
-    OutBuffer* outBuffer();
+  OutBuffer *outBuffer();
 
+  void setUserData(void *user_data);
 
-  private:
-    static void readCallback(struct bufferevent *bev, void *ctx);
+  void *getUserData() const;
 
-    static void writeCallback(struct bufferevent *bev, void *ctx);
+private:
+  static void readCallback(struct bufferevent *bev, void *ctx);
 
-    static void errorCallback(struct bufferevent *bev, short what, void *ctx);
+  static void writeCallback(struct bufferevent *bev, void *ctx);
 
-  private:
-    std::string ip_addr_;
-    bufferevent *buf_ev_;
+  static void errorCallback(struct bufferevent *bev, short what, void *ctx);
 
-    InBuffer in_buf_;
-    OutBuffer out_buf_;
+private:
+  std::string ip_addr_;
+  bufferevent *buf_ev_;
 
-    MessageCallback message_callback_;
+  InBuffer in_buf_;
+  OutBuffer out_buf_;
+
+  MessageCallback message_callback_;
+
+  void *user_data_ = nullptr;
 };
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

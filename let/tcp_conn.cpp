@@ -73,4 +73,14 @@ OutBuffer *TcpConnection::outBuffer()
     return &out_buf_;
 }
 
+void TcpConnection::setUserData(void *user_data)
+{
+    user_data_ = user_data;
+}
+
+void *TcpConnection::getUserData() const
+{
+    return user_data_;
+}
+
 } // namespace let

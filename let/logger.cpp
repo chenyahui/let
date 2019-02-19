@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <boost/format.hpp>
+#include <cstdlib>
 
 #include "logger.h"
 #include "util.h"

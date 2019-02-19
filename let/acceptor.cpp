@@ -22,9 +22,11 @@ namespace let
 Acceptor::Acceptor(const std::string &ip_addr)
     : ev_base_(event_base_new())
 {
-    sockaddr_in listen_on_addr{};
+    struct sockaddr_in listen_on_addr{};
 
     int socklen = sizeof(listen_on_addr);
+
+    
 
     if (evutil_parse_sockaddr_port(ip_addr.c_str(),
                                    (struct sockaddr *)&listen_on_addr,
