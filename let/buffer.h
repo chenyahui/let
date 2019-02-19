@@ -14,14 +14,39 @@ namespace let
 class Buffer
 {
   public:
-    explicit Buffer(evbuffer *ev_buf) : ev_buf_(ev_buf)
+    explicit Buffer(evbuffer *ev_buf)
+        : ev_buf_(ev_buf)
     {
+    }
+
+    Buffer()
+        : ev_buf_(evbuffer_new())
+    {
+    }
+
+    virtual ~Buffer()
+    {
+        evbuffer_free(ev_buf_);
     }
 
     size_t length() const
     {
         return evbuffer_get_length(ev_buf_);
     }
+
+    bool enableLocking(void *locker)
+    {
+        return evbuffer_enable_locking(ev_buf_, locker) == 0;
+    }
+
+    void lock(){
+        evbuffer_lock(ev_buf_);
+    }
+
+    void unlock(){
+        evbuffer_unlock(ev_buf_);
+    }
+
 
     evbuffer *buffer() const
     {

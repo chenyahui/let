@@ -23,6 +23,12 @@ class TcpServer
 
     void setMessageCallback(const MessageCallback &messageCallback);
 
+    void setConnectionCallback();
+
+    void setCloseCallback();
+
+    void setErrorCallback();
+
   private:
     Acceptor *acceptor_;
 };
