@@ -88,6 +88,10 @@ class InBuffer : Buffer
         return evbuffer_search_range(ev_buf_, what, len, start_ptr, end_ptr);
     }
 
+    evbuffer_ptr search(const std::string& what){
+        return search(what.c_str(), what.size());
+    }
+
     evbuffer_ptr searchEOL()
     {
     }
