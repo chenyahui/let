@@ -39,14 +39,15 @@ class Buffer
         return evbuffer_enable_locking(ev_buf_, locker) == 0;
     }
 
-    void lock(){
+    void lock()
+    {
         evbuffer_lock(ev_buf_);
     }
 
-    void unlock(){
+    void unlock()
+    {
         evbuffer_unlock(ev_buf_);
     }
-
 
     evbuffer *buffer() const
     {
