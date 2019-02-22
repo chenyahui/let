@@ -6,14 +6,16 @@
 #define LET_CALLBACK_H
 
 #include <functional>
+#include <memory>
 
 namespace let
 {
 class TcpConnection;
 
-using MessageCallback = std::function<void(TcpConnection *)>;
-using ConnectionCallback = std::function<void(TcpConnection *)>;
+using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 
+using MessageCallback = std::function<void(TcpConnectionPtr)>;
+using ConnectionCallback = std::function<void(TcpConnectionPtr)>;
 
 } // namespace let
 #endif //LET_CALLBACK_H

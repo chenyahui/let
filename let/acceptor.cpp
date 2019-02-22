@@ -19,20 +19,21 @@ namespace let
 	 * ipv4:port
 	 * ipv4
 	 */
-Acceptor::Acceptor(const std::string &ip_addr)
+Acceptor::Acceptor(const IpAddress &ipaddr)
     : ev_base_(event_base_new())
 {
-    struct sockaddr_in listen_on_addr{};
+    struct sockaddr_in listen_on_addr;
 
     int socklen = sizeof(listen_on_addr);
 
-    
+    auto ip_addr_str = ipaddr.format();
 
-    if (evutil_parse_sockaddr_port(ip_addr.c_str(),
+    // todo 优化
+    if (evutil_parse_sockaddr_port(ip_addr_str.c_str(),
                                    (struct sockaddr *)&listen_on_addr,
                                    &socklen))
     {
-        LOG_FATAL << "ip format is wrong: " << ip_addr;
+        LOG_FATAL << "ip format is wrong: " << ip_addr_str;
     }
 
     listener_ = evconnlistener_new_bind(ev_base_,
@@ -58,8 +59,13 @@ void Acceptor::start()
 {
     for (int i = 0; i < io_threads_.size(); ++i)
     {
-        io_threads_[0]->start();
+        io_threads_[i]->start();
     }
+}
+
+void Acceptor::setConnectionCallback(const ConnectionCallback &callback)
+{
+    connect_cb_ = callback;
 }
 
 void Acceptor::newConnectionCallback(struct evconnlistener *listener,
@@ -69,18 +75,15 @@ void Acceptor::newConnectionCallback(struct evconnlistener *listener,
                                      void *ctx)
 {
 
-    auto acceptor = (Acceptor *)ctx;
-    acceptor->schedule(fd, address, socklen);
-}
+    auto self = (Acceptor *)ctx;
 
-void Acceptor::schedule(evutil_socket_t fd, struct sockaddr *address, int socklen)
-{
-    std::string ip_port = sockaddr_to_ip_port(address);
+    auto tcp_conn = self->io_threads_[self->next_]->newConnection(fd);
 
-    // 此处得到的fd，libevent会帮助我们设置为noblock的
+    self->next_ = (self->next_ + 1) % self->io_threads_.size();
 
-    io_threads_[next_hub_]->addConnection(fd, ip_port);
-
-    next_hub_ = (next_hub_ + 1) % io_threads_.size();
+    if (self->connect_cb_)
+    {
+        self->connect_cb_(tcp_conn);
+    }
 }
 } // namespace let

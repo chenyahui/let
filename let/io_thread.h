@@ -7,6 +7,7 @@
 
 #include <event2/event.h>
 #include <map>
+#include <memory>
 #include <thread>
 
 #include "tcp_conn.h"
@@ -14,9 +15,9 @@
 namespace let
 {
 /**
-     * A IoThread is responsible of managing connections.
-     * A IoThread contains an event_loop, that all connections register on it.
-     */
+  * A IoThread is responsible of managing connections.
+  * A IoThread contains an event_loop, that all connections register on it.
+*/
 class IoThread
 {
 public:
@@ -32,7 +33,7 @@ public:
   void stop();
 
   // todo use std::move
-  void addConnection(evutil_socket_t fd, const std::string &ip_port);
+  std::shared_ptr<TcpConnection> newConnection(evutil_socket_t fd);
 
 private:
   event_base *ev_base_;

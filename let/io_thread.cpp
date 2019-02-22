@@ -7,12 +7,10 @@
 
 namespace let
 {
-void IoThread::addConnection(evutil_socket_t fd, const std::string &ip_port)
+std::shared_ptr<TcpConnection> IoThread::newConnection(evutil_socket_t fd)
 {
     auto buf_ev = bufferevent_socket_new(ev_base_, fd, 0);
-
-    auto conn = std::make_shared<TcpConnection>(buf_ev);
-    connections_.insert(std::make_pair(ip_port, conn));
+    return std::make_shared<TcpConnection>(buf_ev);
 }
 
 void IoThread::start()
