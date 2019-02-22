@@ -29,7 +29,7 @@ class Buffer
         evbuffer_free(ev_buf_);
     }
 
-    size_t length() const
+    size_t length()
     {
         return evbuffer_get_length(ev_buf_);
     }
@@ -60,17 +60,6 @@ class Buffer
         return evbuffer_remove(src, dst, datlen);
     }
 
-  protected:
-    evbuffer *ev_buf_;
-};
-
-class InBuffer : Buffer
-{
-  public:
-    explicit InBuffer(evbuffer *ev_buf) : Buffer(ev_buf)
-    {
-    }
-
     ev_ssize_t copyOut(void *data_out, size_t datlen, const struct evbuffer_ptr *pos = nullptr)
     {
         return evbuffer_copyout_from(ev_buf_, pos, data_out, datlen);
@@ -89,7 +78,8 @@ class InBuffer : Buffer
         return evbuffer_search_range(ev_buf_, what, len, start_ptr, end_ptr);
     }
 
-    evbuffer_ptr search(const std::string& what){
+    evbuffer_ptr search(const std::string &what)
+    {
         return search(what.c_str(), what.size());
     }
 
@@ -108,14 +98,6 @@ class InBuffer : Buffer
         char *data = evbuffer_readln(ev_buf_, &n_read_out, eol_style);
 
         return {data, n_read_out};
-    }
-};
-
-class OutBuffer : Buffer
-{
-  public:
-    explicit OutBuffer(evbuffer *ev_buf) : Buffer(ev_buf)
-    {
     }
 
     bool addFile(int fd)
@@ -137,6 +119,9 @@ class OutBuffer : Buffer
     {
         return evbuffer_add_buffer(ev_buf_, buffer) == 0;
     }
+
+  protected:
+    evbuffer *ev_buf_;
 };
 } // namespace let
 #endif //LET_BUFFER_H

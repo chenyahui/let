@@ -63,12 +63,12 @@ void TcpConnection::errorCallback(struct bufferevent *bev, short what, void *ctx
     auto conn = (TcpConnection *)ctx;
 }
 
-InBuffer *TcpConnection::inputBuffer()
+Buffer *TcpConnection::inputBuffer()
 {
     return &in_buf_;
 }
 
-OutBuffer *TcpConnection::outBuffer()
+Buffer *TcpConnection::outBuffer()
 {
     return &out_buf_;
 }

@@ -26,9 +26,9 @@ public:
 
   evutil_socket_t getFd();
 
-  InBuffer *inputBuffer();
+  Buffer *inputBuffer();
 
-  OutBuffer *outBuffer();
+  Buffer *outBuffer();
 
   void setUserData(void *user_data);
 
@@ -45,8 +45,8 @@ private:
   std::string ip_addr_;
   bufferevent *buf_ev_;
 
-  InBuffer in_buf_;
-  OutBuffer out_buf_;
+  Buffer in_buf_;
+  Buffer out_buf_;
 
   MessageCallback message_callback_;
 
