@@ -1,35 +1,42 @@
 #include <event2/listener.h>
+#include <memory>
 
 #include "acceptor.h"
 #include "callback.h"
+#include "ip_addr.h"
 
 namespace let
 {
 
 struct ServerOptions
 {
-    size_t hub_num;
-    std::string ip_port;
+  size_t io_thread;
+  std::string ip_port;
 };
 
 class TcpServer
 {
-  public:
-    void run(ServerOptions options);
+public:
+  TcpServer(const ServerOptions &options, const IpAddress &ip_addr);
 
-    void run();
+  void run();
 
-    void stop();
+  void stop();
 
-    void setMessageCallback(const MessageCallback &messageCallback);
+  void setMessageCallback(const MessageCallback &messageCallback);
 
-    void setConnectionCallback();
+  void setConnectionCallback(const ConnectionCallback &connectionCallback);
 
-    void setCloseCallback();
+  void setCloseCallback();
 
-    void setErrorCallback();
+  void setErrorCallback();
 
-  private:
-    Acceptor *acceptor_;
+private:
+  void connectionCallbackWrapper(TcpConnection *);
+  void messageCallbackWrapper(TcpConnection *);
+
+private:
+  std::unique_ptr<Acceptor> acceptor_;
+  ServerOptions options_;
 };
 } // namespace let

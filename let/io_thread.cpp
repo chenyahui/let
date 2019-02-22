@@ -3,11 +3,11 @@
 //
 
 #include <event2/bufferevent.h>
-#include "conn_hub.h"
+#include "io_thread.h"
 
 namespace let
 {
-void ConnectionHub::addConnection(evutil_socket_t fd, const std::string &ip_port)
+void IoThread::addConnection(evutil_socket_t fd, const std::string &ip_port)
 {
     auto buf_ev = bufferevent_socket_new(ev_base_, fd, 0);
 
@@ -15,20 +15,20 @@ void ConnectionHub::addConnection(evutil_socket_t fd, const std::string &ip_port
     connections_.insert(std::make_pair(ip_port, conn));
 }
 
-void ConnectionHub::start()
+void IoThread::start()
 {
     thread_ = std::thread([=]() {
         event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
     });
 }
 
-void ConnectionHub::stop()
+void IoThread::stop()
 {
     event_base_loopbreak(ev_base_);
     thread_.join();
 }
 
-ConnectionHub::~ConnectionHub()
+IoThread::~IoThread()
 {
     stop();
 }

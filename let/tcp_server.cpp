@@ -6,9 +6,10 @@
 
 namespace let
 {
-void TcpServer::run(ServerOptions option)
+
+TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
+    : options_(options)
 {
-    acceptor_->start();
 }
 
 void TcpServer::run()
