@@ -6,8 +6,11 @@
 #define LET_WORKER_H
 namespace let
 {
-class TaskWorker
+
+class Worker
 {
+
 };
+
 } // namespace let
 #endif //LET_WORKER_H

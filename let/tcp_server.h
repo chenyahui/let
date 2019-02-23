@@ -4,6 +4,7 @@
 #include "acceptor.h"
 #include "callback.h"
 #include "ip_addr.h"
+#include "io_thread.h"
 
 namespace let
 {
@@ -32,11 +33,19 @@ public:
   void setErrorCallback();
 
 private:
-  void connectionCallbackWrapper(TcpConnection *);
-  void messageCallbackWrapper(TcpConnection *);
+  void connectionCallbackWrappe(TcpConnectionPtr);
+  void messageCallbackWrapper(TcpConnectionPtr);
+
+  void newConnection(int sockfd, const IpAddress &);
 
 private:
-  std::unique_ptr<Acceptor> acceptor_;
+  Acceptor acceptor_;
   ServerOptions options_;
+
+  MessageCallback message_cb_;
+  ConnectionCallback connection_cb_;
+
+  IoThreadPool io_thread_pool_;
+  
 };
 } // namespace let

@@ -7,11 +7,12 @@
 
 #include <event2/listener.h>
 #include <event2/event.h>
+
+#include <functional>
 #include <vector>
 
 #include "io_thread.h"
 #include "ip_addr.h"
-#include "callback.h"
 
 namespace let
 {
@@ -19,16 +20,18 @@ namespace let
 class Acceptor
 {
 public:
+  using NewConnectionCallback = std::function<void(int sockfd, const IpAddress &)>;
+
   explicit Acceptor(const IpAddress &ipaddr);
 
   ~Acceptor();
 
   void start();
 
-  void setConnectionCallback(const ConnectionCallback& callback);
-private:
+  void setNewConnectionCallback(const NewConnectionCallback &callback);
 
-  static void newConnectionCallback(struct evconnlistener *listener,
+private:
+  static void handleAccept(struct evconnlistener *listener,
                                     evutil_socket_t fd,
                                     struct sockaddr *address,
                                     int socklen,
@@ -38,9 +41,8 @@ private:
   event_base *ev_base_;
   evconnlistener *listener_;
 
-  std::vector<IoThread *> io_threads_;
-  std::size_t next_ = 0;
-  ConnectionCallback connect_cb_;
+  
+  NewConnectionCallback new_connect_cb_;
 };
 } // namespace let
 #endif //LET_ACCEPTOR_H

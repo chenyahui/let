@@ -32,8 +32,7 @@ public:
 
   void stop();
 
-  // todo use std::move
-  std::shared_ptr<TcpConnection> newConnection(evutil_socket_t fd);
+  void addConnection(TcpConnectionPtr);
 
 private:
   event_base *ev_base_;
@@ -41,5 +40,23 @@ private:
 
   std::thread thread_;
 };
+
+class IoThreadPool
+{
+public:
+  explicit IoThreadPool(size_t thread_num)
+      : thread_num_(thread_num)
+  {
+  }
+
+  void addConnnection(TcpConnectionPtr ptr);
+
+private:
+  std::vector<IoThread *> io_threads_;
+  std::size_t next_ = 0;
+
+  size_t thread_num_ = 0;
+};
+
 } // namespace let
 #endif //LET_IO_THREAD_H

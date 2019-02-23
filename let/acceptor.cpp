@@ -37,7 +37,7 @@ Acceptor::Acceptor(const IpAddress &ipaddr)
     }
 
     listener_ = evconnlistener_new_bind(ev_base_,
-                                        newConnectionCallback,
+                                        handleAccept,
                                         this,
                                         LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
                                         -1,
@@ -63,18 +63,19 @@ void Acceptor::start()
     }
 }
 
-void Acceptor::setConnectionCallback(const ConnectionCallback &callback)
+void Acceptor::setNewConnectionCallback(const ConnectionCallback &callback)
 {
     connect_cb_ = callback;
 }
 
-void Acceptor::newConnectionCallback(struct evconnlistener *listener,
+void Acceptor::handleAccept(struct evconnlistener *listener,
                                      evutil_socket_t fd,
                                      struct sockaddr *address,
                                      int socklen,
                                      void *ctx)
 {
 
+    // 轮询选择iothread
     auto self = (Acceptor *)ctx;
 
     auto tcp_conn = self->io_threads_[self->next_]->newConnection(fd);

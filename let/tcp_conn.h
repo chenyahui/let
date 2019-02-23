@@ -12,12 +12,15 @@
 
 #include "callback.h"
 #include "buffer.h"
+#include "ip_addr.h"
 
 namespace let
 {
 class TcpConnection
 {
 public:
+  explicit TcpConnection(int fd, const IpAddress& ip_addr_);
+
   explicit TcpConnection(bufferevent *buf_ev);
 
   ~TcpConnection();
@@ -34,6 +37,8 @@ public:
 
   void *getUserData() const;
 
+  void setMessageCallback(const MessageCallback&);
+
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 
@@ -42,7 +47,9 @@ private:
   static void errorCallback(struct bufferevent *bev, short what, void *ctx);
 
 private:
-  std::string ip_addr_;
+  IpAddress ip_addr_;
+  int fd_;
+
   bufferevent *buf_ev_;
 
   Buffer in_buf_;

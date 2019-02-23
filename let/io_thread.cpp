@@ -7,10 +7,9 @@
 
 namespace let
 {
-std::shared_ptr<TcpConnection> IoThread::newConnection(evutil_socket_t fd)
+void IoThread::addConnection(TcpConnectionPtr tcp_conn)
 {
-    auto buf_ev = bufferevent_socket_new(ev_base_, fd, 0);
-    return std::make_shared<TcpConnection>(buf_ev);
+    auto buf_ev = bufferevent_socket_new(ev_base_, tcp_conn->getFd(), 0);
 }
 
 void IoThread::start()
@@ -29,5 +28,11 @@ void IoThread::stop()
 IoThread::~IoThread()
 {
     stop();
+}
+
+void IoThreadPool::addConnnection(TcpConnectionPtr ptr)
+{
+    auto tcp_conn = io_threads_[next_]->newConnection(fd);
+    
 }
 } // namespace let
