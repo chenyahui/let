@@ -16,12 +16,10 @@
 
 namespace let
 {
-class TcpConnection
+class TcpConnection : std::enable_shared_from_this<TcpConnection>
 {
 public:
-  explicit TcpConnection(int fd, const IpAddress& ip_addr_);
-
-  explicit TcpConnection(bufferevent *buf_ev);
+  TcpConnection(int fd, const IpAddress& ip_addr_);
 
   ~TcpConnection();
 
@@ -38,24 +36,32 @@ public:
   void *getUserData() const;
 
   void setMessageCallback(const MessageCallback&);
+  
+  void setCloseCallback(const CloseCallback& closeCallback);
+
+  void setErrorCallback(const ErrorCallback& errorCallback);
+  
+  void bindBufferEvent(bufferevent*);
 
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 
   static void writeCallback(struct bufferevent *bev, void *ctx);
 
-  static void errorCallback(struct bufferevent *bev, short what, void *ctx);
+  static void eventCallback(struct bufferevent *bev, short what, void *ctx);
 
 private:
   IpAddress ip_addr_;
-  int fd_;
+  evutil_socket_t fd_;
 
   bufferevent *buf_ev_;
 
-  Buffer in_buf_;
-  Buffer out_buf_;
+  Buffer* in_buf_;
+  Buffer* out_buf_;
 
-  MessageCallback message_callback_;
+  MessageCallback message_cb_;
+  CloseCallback close_cb_;
+  ErrorCallback error_cb_;
 
   void *user_data_ = nullptr;
 };

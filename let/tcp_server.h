@@ -11,8 +11,9 @@ namespace let
 
 struct ServerOptions
 {
-  size_t io_thread;
-  std::string ip_port;
+  size_t io_thread_num; // io线程的个数
+  int read_high_water = -1; // 读的高水位
+  int read_low_water = 0; // 读的低水位
 };
 
 class TcpServer
@@ -28,24 +29,23 @@ public:
 
   void setConnectionCallback(const ConnectionCallback &connectionCallback);
 
-  void setCloseCallback();
+  void setCloseCallback(const CloseCallback& closeCallback);
 
-  void setErrorCallback();
+  void setErrorCallback(const ErrorCallback& errorCallback);
 
 private:
-  void connectionCallbackWrappe(TcpConnectionPtr);
-  void messageCallbackWrapper(TcpConnectionPtr);
-
   void newConnection(int sockfd, const IpAddress &);
 
 private:
   Acceptor acceptor_;
+  IoThreadPool io_thread_pool_;
   ServerOptions options_;
 
   MessageCallback message_cb_;
   ConnectionCallback connection_cb_;
+  CloseCallback close_cb_;
+  ErrorCallback error_cb_;
 
-  IoThreadPool io_thread_pool_;
-  
+  std::map<int, TcpConnectionPtr> connections_;
 };
 } // namespace let

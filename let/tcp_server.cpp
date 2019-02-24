@@ -11,7 +11,7 @@ namespace let
 TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
     : options_(options),
       acceptor_(ip_addr),
-      io_thread_pool_(options.io_thread)
+      io_thread_pool_(options.io_thread_num)
 {
     acceptor_.setNewConnectionCallback(std::bind(&TcpServer::newConnection,
                                                  this,
@@ -22,12 +22,9 @@ void TcpServer::run()
 {
 }
 
-void TcpServer::connectionCallbackWrapper(TcpConnectionPtr tcp_conn)
+void TcpServer::setMessageCallback(const MessageCallback &cb)
 {
-    if (connection_cb_)
-    {
-        connection_cb_(tcp_conn);
-    }
+    message_cb_ = cb;
 }
 
 void TcpServer::setConnectionCallback(const ConnectionCallback &cb)
@@ -35,14 +32,27 @@ void TcpServer::setConnectionCallback(const ConnectionCallback &cb)
     connection_cb_ = cb;
 }
 
-void TcpServer::newConnection(int sockfd, const IpAddress &ip_addr)
+void TcpServer::setCloseCallback(const CloseCallback &cb)
+{
+    close_cb_ = cb;
+}
+
+void TcpServer::setErrorCallback(const ErrorCallback &cb)
+{
+    error_cb_ = cb;
+}
+
+void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 {
     auto tcp_conn = std::make_shared<TcpConnection>(sockfd, ip_addr);
 
+    connections_[sockfd] = tcp_conn;
+
     // set callback
-    tcp_conn->setMessageCallback(std::bind(&TcpServer::messageCallbackWrapper,
-                                           this,
-                                           std::placeholders::_1));
+    tcp_conn->setMessageCallback(message_cb_);
+    tcp_conn->setCloseCallback(close_cb_);
+    tcp_conn->setErrorCallback(error_cb_);
+    
     //
     io_thread_pool_.addConnnection(tcp_conn);
 }

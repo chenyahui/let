@@ -14,8 +14,12 @@ class TcpConnection;
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 
-using MessageCallback = std::function<void(TcpConnectionPtr)>;
 using ConnectionCallback = std::function<void(TcpConnectionPtr)>;
+using MessageCallback = std::function<void(TcpConnectionPtr)>;
+using CloseCallback = std::function<void(TcpConnectionPtr)>;
+
+// conn, 
+using ErrorCallback = std::function<void(TcpConnectionPtr,int)>;
 
 } // namespace let
 #endif //LET_CALLBACK_H

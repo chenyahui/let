@@ -20,7 +20,7 @@ namespace let
 class Acceptor
 {
 public:
-  using NewConnectionCallback = std::function<void(int sockfd, const IpAddress &)>;
+  using NewConnectionCallback = std::function<void(evutil_socket_t sockfd, const IpAddress &)>;
 
   explicit Acceptor(const IpAddress &ipaddr);
 
