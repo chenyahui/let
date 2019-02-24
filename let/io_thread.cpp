@@ -7,11 +7,6 @@
 
 namespace let
 {
-void IoThread::addConnection(TcpConnectionPtr tcp_conn)
-{
-    auto buf_ev = bufferevent_socket_new(ev_base_, tcp_conn->getFd(), 0);
-}
-
 void IoThread::start()
 {
     thread_ = std::thread([=]() {
@@ -30,9 +25,14 @@ IoThread::~IoThread()
     stop();
 }
 
-void IoThreadPool::addConnnection(TcpConnectionPtr ptr)
+void IoThreadPool::addConnnection(TcpConnectionPtr tcp_conn)
 {
-    auto tcp_conn = io_threads_[next_]->newConnection(fd);
-    
+    tcp_conn->bindIoThread(getNextIoThread());
+}
+
+IoThread *IoThreadPool::getNextIoThread()
+{
+    auto io_thread = io_threads_[next_];
+    next_ = (next_ + 1) % io_threads_.size();
 }
 } // namespace let

@@ -32,6 +32,8 @@ public:
 
   void stop();
 
+  event_base *getEvBase() const;
+
   void addConnection(TcpConnectionPtr);
 
 private:
@@ -50,6 +52,8 @@ public:
   }
 
   void addConnnection(TcpConnectionPtr ptr);
+
+  IoThread *getNextIoThread();
 
 private:
   std::vector<IoThread *> io_threads_;

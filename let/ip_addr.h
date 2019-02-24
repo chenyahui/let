@@ -14,6 +14,8 @@ public:
   {
   }
 
+  IpAddress(struct sockaddr *address, int socklen);
+
   const std::string &ip() const
   {
     return ip_;

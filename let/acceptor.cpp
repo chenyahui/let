@@ -57,34 +57,26 @@ Acceptor::~Acceptor()
 
 void Acceptor::start()
 {
-    for (int i = 0; i < io_threads_.size(); ++i)
-    {
-        io_threads_[i]->start();
-    }
-}
-
-void Acceptor::setNewConnectionCallback(const ConnectionCallback &callback)
-{
-    connect_cb_ = callback;
 }
 
 void Acceptor::handleAccept(struct evconnlistener *listener,
-                                     evutil_socket_t fd,
-                                     struct sockaddr *address,
-                                     int socklen,
-                                     void *ctx)
+                            evutil_socket_t fd,
+                            struct sockaddr *address,
+                            int socklen,
+                            void *ctx)
 {
-
-    // 轮询选择iothread
     auto self = (Acceptor *)ctx;
-
-    auto tcp_conn = self->io_threads_[self->next_]->newConnection(fd);
-
-    self->next_ = (self->next_ + 1) % self->io_threads_.size();
-
-    if (self->connect_cb_)
+    if (self == nullptr)
     {
-        self->connect_cb_(tcp_conn);
+        LOG_ERROR << "not an acceptor, fd : " << fd;
+        return;
     }
+    IpAddress ip_addr(address, socklen);
+    self->new_connect_cb_(fd, ip_addr);
+}
+
+void Acceptor::setNewConnectionCallback(const NewConnectionCallback &callback)
+{
+    new_connect_cb_ = callback;
 }
 } // namespace let

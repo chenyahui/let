@@ -11,9 +11,9 @@ namespace let
 
 struct ServerOptions
 {
-  size_t io_thread_num; // io线程的个数
+  size_t io_thread_num;     // io线程的个数
   int read_high_water = -1; // 读的高水位
-  int read_low_water = 0; // 读的低水位
+  int read_low_water = 0;   // 读的低水位
 };
 
 class TcpServer
@@ -25,13 +25,13 @@ public:
 
   void stop();
 
-  void setMessageCallback(const MessageCallback &messageCallback);
+  void setMessageCallback(const MessageCallback &);
 
-  void setConnectionCallback(const ConnectionCallback &connectionCallback);
+  void setConnectionCallback(const ConnectionCallback &);
 
-  void setCloseCallback(const CloseCallback& closeCallback);
+  void setCloseCallback(const CloseCallback &);
 
-  void setErrorCallback(const ErrorCallback& errorCallback);
+  void setErrorCallback(const ErrorCallback &);
 
 private:
   void newConnection(int sockfd, const IpAddress &);

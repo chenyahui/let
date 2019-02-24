@@ -5,6 +5,7 @@
 #include <event2/event.h>
 
 #include "tcp_conn.h"
+#include "io_thread.h"
 
 namespace let
 {
@@ -13,9 +14,11 @@ TcpConnection::TcpConnection(evutil_socket_t fd, const IpAddress &ip_addr_)
 {
 }
 
-void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
+void TcpConnection::bindIoThread(IoThread *io_thread)
 {
-    buf_ev_ = buf_ev,
+    auto ev_base = io_thread->getEvBase();
+    auto buf_ev = bufferevent_socket_new(ev_base, fd_, 0);
+
     in_buf_ = new Buffer(bufferevent_get_input(buf_ev));
     out_buf_ = new Buffer(bufferevent_get_output(buf_ev));
 
@@ -108,14 +111,14 @@ Buffer *TcpConnection::outBuffer()
     return out_buf_;
 }
 
-void TcpConnection::setUserData(void *user_data)
+void TcpConnection::setContext(boost::any context)
 {
-    user_data_ = user_data;
+    context_ = context;
 }
 
-void *TcpConnection::getUserData() const
+boost::any *TcpConnection::getContext()
 {
-    return user_data_;
+    return &context_;
 }
 
 } // namespace let

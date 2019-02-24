@@ -17,6 +17,7 @@
 namespace let
 {
 // Acceptor仅负责接收新连接
+// todo accept失败了怎么办
 class Acceptor
 {
 public:
@@ -40,7 +41,6 @@ private:
 private:
   event_base *ev_base_;
   evconnlistener *listener_;
-
   
   NewConnectionCallback new_connect_cb_;
 };

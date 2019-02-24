@@ -18,7 +18,7 @@ using ConnectionCallback = std::function<void(TcpConnectionPtr)>;
 using MessageCallback = std::function<void(TcpConnectionPtr)>;
 using CloseCallback = std::function<void(TcpConnectionPtr)>;
 
-// conn, 
+// conn, errorCode
 using ErrorCallback = std::function<void(TcpConnectionPtr,int)>;
 
 } // namespace let
