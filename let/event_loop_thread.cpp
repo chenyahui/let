@@ -11,9 +11,12 @@ namespace let
 {
 void EventLoopThread::start()
 {
-    thread_ = std::thread([&]() {
-        event_loop_.loop();
-    });
+    
+}
+
+EventLoopThread::~EventLoopThread()
+{
+    stop();
 }
 
 void EventLoopThread::stop()
@@ -22,9 +25,9 @@ void EventLoopThread::stop()
     thread_.join();
 }
 
-EventLoopThread::~EventLoopThread()
+void EventLoopThread::threadFunc()
 {
-    stop();
+    event_loop_.loop();
 }
 
 const EventLoop &EventLoopThread::getEventLoop() const

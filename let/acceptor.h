@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <vector>
+#include <boost/noncopyable.hpp>
 
 #include "ip_addr.h"
 
@@ -17,7 +18,7 @@ namespace let
 {
 // Acceptor仅负责接收新连接
 // todo accept失败了怎么办
-class Acceptor
+class Acceptor : boost::noncopyable
 {
 public:
   using NewConnectionCallback = std::function<void(evutil_socket_t sockfd, const IpAddress &)>;

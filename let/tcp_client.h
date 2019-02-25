@@ -8,13 +8,14 @@
 #include "ip_addr.h"
 #include "event_loop.h"
 #include "connector.h"
+#include "callback.h"
 
 namespace let
 {
 class TcpClient
 {
 public:
-  TcpClient(const IpAddress &remote_ip_addr, EventLoop *event_loop);
+  TcpClient(EventLoop *event_loop, const IpAddress &remote_addr);
 
   void connect();
 
@@ -38,13 +39,13 @@ private:
 private:
   EventLoop *event_loop_;
   IpAddress remote_addr_;
+  Connector connector_;
 
   MessageCallback message_cb_;
   ConnectionCallback connection_cb_;
   CloseCallback close_cb_;
   ErrorCallback error_cb_;
 
-  Connector connector_;
 };
 } // namespace let
 #endif //LET_TCP_CLIENT_H

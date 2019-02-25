@@ -13,9 +13,9 @@ class Connector
 public:
   typedef std::function<void(evutil_socket_t)> NewConnectionCallback;
 
-  Connector(const IpAddress &remote_addr, EventLoop *event_loop);
+  Connector(EventLoop *event_loop, const IpAddress &remote_addr);
 
-  void connect();
+  bool connect();
 
   void setNewConnectionCallback(const NewConnectionCallback &callback);
 

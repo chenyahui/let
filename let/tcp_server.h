@@ -1,3 +1,6 @@
+#ifndef LET_TCP_SERVER_H
+#define LET_TCP_SERVER_H
+
 #include <event2/listener.h>
 #include <memory>
 
@@ -49,3 +52,5 @@ private:
   std::map<int, TcpConnectionPtr> connections_;
 };
 } // namespace let
+
+#endif

@@ -11,13 +11,13 @@
 namespace let
 {
 
+using Task = std::function<void()>;
+
 class Worker
 {
   public:
-    using Task = std::function<void()>;
-
     Worker();
-    
+
     void postTask(const Task &);
 
   private:
@@ -30,6 +30,13 @@ class Worker
 
 class WorkerPool
 {
+  public:
+    WorkerPool(size_t num)
+    {
+    }
+    void postTask(const Task &);
+
+  private:
 };
 
 } // namespace let

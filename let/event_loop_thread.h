@@ -22,9 +22,7 @@ namespace let
 class EventLoopThread
 {
 public:
-  explicit EventLoopThread()
-  {
-  }
+  explicit EventLoopThread();
 
   ~EventLoopThread();
 
@@ -32,7 +30,10 @@ public:
 
   void stop();
 
-  const EventLoop & getEventLoop() const;
+  const EventLoop &getEventLoop() const;
+
+private:
+  void threadFunc();
 
 private:
   EventLoop event_loop_;
@@ -47,6 +48,10 @@ public:
       : thread_num_(thread_num)
   {
   }
+
+  void start();
+
+  void stop();
 
   EventLoopThread *getNextEventLoopThread();
 

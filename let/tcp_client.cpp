@@ -7,6 +7,13 @@
 
 namespace let
 {
+TcpClient::TcpClient(EventLoop *event_loop, const IpAddress &remote_addr)
+    : event_loop_(event_loop),
+      remote_addr_(remote_addr),
+      connector_(event_loop, remote_addr)
+{
+}
+
 void TcpClient::setMessageCallback(const MessageCallback &cb)
 {
     message_cb_ = cb;
@@ -44,6 +51,9 @@ void TcpClient::newConnection(evutil_socket_t fd)
     auto buf_ev = connector_.getBufferEvent();
     tcp_conn->setBufferEvent(buf_ev);
     tcp_conn->bindEventLoop(event_loop_);
+
+    // call callback
+    connection_cb_(tcp_conn);
 }
 
 } // namespace let
