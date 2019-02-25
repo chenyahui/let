@@ -3,6 +3,7 @@
 //
 
 #include "tcp_client.h"
+#include "tcp_conn.h"
 
 namespace let
 {
@@ -28,6 +29,17 @@ void TcpClient::setErrorCallback(const ErrorCallback &cb)
 
 void TcpClient::connect()
 {
-    
+    connector_.connect();
 }
+
+void TcpClient::newConnection(evutil_socket_t fd)
+{
+    auto tcp_conn = std::make_shared<TcpConnection>(fd, remote_addr_);
+    
+    // set callbacks
+    tcp_conn->setMessageCallback(message_cb_);
+    tcp_conn->setCloseCallback(close_cb_);
+    tcp_conn->setErrorCallback(error_cb_);
+}
+
 } // namespace let

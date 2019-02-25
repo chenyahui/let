@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "tcp_conn.h"
+#include "event_loop.h"
 
 namespace let
 {
@@ -18,15 +19,14 @@ namespace let
   * A IoThread is responsible of managing connections.
   * A IoThread contains an event_loop, that all connections register on it.
 */
-class IoThread
+class EventLoopThread
 {
 public:
-  explicit IoThread()
-      : ev_base_(event_base_new())
+  explicit EventLoopThread()
   {
   }
 
-  ~IoThread();
+  ~EventLoopThread();
 
   void start();
 
@@ -34,29 +34,26 @@ public:
 
   event_base *getEvBase() const;
 
-  void addConnection(TcpConnectionPtr);
-
 private:
-  event_base *ev_base_;
-  std::map<std::string, TcpConnectionPtr> connections_;
+  EventLoop event_loop_;
 
   std::thread thread_;
 };
 
-class IoThreadPool
+class EventLoopPool
 {
 public:
-  explicit IoThreadPool(size_t thread_num)
+  explicit EventLoopPool(size_t thread_num)
       : thread_num_(thread_num)
   {
   }
 
   void addConnnection(TcpConnectionPtr ptr);
 
-  IoThread *getNextIoThread();
+  EventLoopThread *getNextIoThread();
 
 private:
-  std::vector<IoThread *> io_threads_;
+  std::vector<EventLoopThread *> io_threads_;
   std::size_t next_ = 0;
 
   size_t thread_num_ = 0;

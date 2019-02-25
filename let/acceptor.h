@@ -27,7 +27,7 @@ public:
 
   ~Acceptor();
 
-  void start();
+  void listen();
 
   void setNewConnectionCallback(const NewConnectionCallback &callback);
 
@@ -41,7 +41,7 @@ private:
 private:
   event_base *ev_base_;
   evconnlistener *listener_;
-  
+
   NewConnectionCallback new_connect_cb_;
 };
 } // namespace let

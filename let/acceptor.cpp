@@ -55,7 +55,7 @@ Acceptor::~Acceptor()
     evconnlistener_free(listener_);
 }
 
-void Acceptor::start()
+void Acceptor::listen()
 {
 }
 

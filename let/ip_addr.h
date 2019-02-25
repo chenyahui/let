@@ -2,6 +2,7 @@
 #define LET_IP_ADDR_H
 
 #include <string>
+#include <sys/socket.h>
 
 namespace let
 {
@@ -31,9 +32,18 @@ public:
     return ip_ + std::to_string(port_);
   }
 
+  const struct sockaddr* getSockAddr(){
+    return (struct sockaddr*)&addr_;
+  }
 private:
   std::string ip_;
   int port_;
+
+  union
+  {
+    struct sockaddr_in addr_;
+    struct sockaddr_in6 addr6_;
+  };
 };
 } // namespace let
 #endif /* LET_IP_ADDR_H */

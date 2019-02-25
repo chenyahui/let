@@ -11,17 +11,19 @@
 #include <boost/any.hpp>
 
 #include "callback.h"
-#include "buffer.h"
 #include "ip_addr.h"
 
 namespace let
 {
 class IoThread;
+class Buffer;
 
 class TcpConnection : std::enable_shared_from_this<TcpConnection>
 {
 public:
-  TcpConnection(int fd, const IpAddress &ip_addr_);
+  TcpConnection(int fd,
+                const IpAddress &local_addr,
+                const IpAddress &remote_addr);
 
   ~TcpConnection();
 
