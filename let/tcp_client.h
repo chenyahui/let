@@ -6,7 +6,7 @@
 #define LET_TCP_CLIENT_H
 
 #include "ip_addr.h"
-#include "io_thread.h"
+#include "event_loop.h"
 #include "connector.h"
 
 namespace let
@@ -14,7 +14,7 @@ namespace let
 class TcpClient
 {
 public:
-  TcpClient(const IpAddress &remote_ip_addr, IoThread *io_thread);
+  TcpClient(const IpAddress &remote_ip_addr, EventLoop *event_loop);
 
   void connect();
 
@@ -36,7 +36,7 @@ private:
   void newConnection(evutil_socket_t fd);
 
 private:
-  IoThread *io_thread_;
+  EventLoop *event_loop_;
   IpAddress remote_addr_;
 
   MessageCallback message_cb_;

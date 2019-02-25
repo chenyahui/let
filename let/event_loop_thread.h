@@ -16,8 +16,8 @@
 namespace let
 {
 /**
-  * A IoThread is responsible of managing connections.
-  * A IoThread contains an event_loop, that all connections register on it.
+  * A EventLoopThread is responsible of managing connections.
+  * A EventLoopThread contains an event_loop, that all connections register on it.
 */
 class EventLoopThread
 {
@@ -32,7 +32,7 @@ public:
 
   void stop();
 
-  event_base *getEvBase() const;
+  const EventLoop & getEventLoop() const;
 
 private:
   EventLoop event_loop_;
@@ -40,20 +40,18 @@ private:
   std::thread thread_;
 };
 
-class EventLoopPool
+class EventLoopThreadPool
 {
 public:
-  explicit EventLoopPool(size_t thread_num)
+  explicit EventLoopThreadPool(size_t thread_num)
       : thread_num_(thread_num)
   {
   }
 
-  void addConnnection(TcpConnectionPtr ptr);
-
-  EventLoopThread *getNextIoThread();
+  EventLoopThread *getNextEventLoopThread();
 
 private:
-  std::vector<EventLoopThread *> io_threads_;
+  std::vector<EventLoopThread *> event_loop_threads_;
   std::size_t next_ = 0;
 
   size_t thread_num_ = 0;

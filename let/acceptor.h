@@ -11,7 +11,6 @@
 #include <functional>
 #include <vector>
 
-#include "io_thread.h"
 #include "ip_addr.h"
 
 namespace let

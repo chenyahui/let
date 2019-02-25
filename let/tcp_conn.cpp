@@ -5,33 +5,18 @@
 #include <event2/event.h>
 
 #include "tcp_conn.h"
-#include "io_thread.h"
+#include "event_loop.h"
+#include "buffer.h"
 
 namespace let
 {
-TcpConnection::TcpConnection(evutil_socket_t fd, const IpAddress &ip_addr_)
-    : fd_(fd), ip_addr_(ip_addr_)
+TcpConnection::TcpConnection(int fd,
+                             const IpAddress &local_addr,
+                             const IpAddress &remote_addr)
+    : fd_(fd),
+      remote_addr_(remote_addr),
+      local_addr_(local_addr)
 {
-}
-
-void TcpConnection::bindIoThread(IoThread *io_thread)
-{
-    auto ev_base = io_thread->getEvBase();
-    auto buf_ev = bufferevent_socket_new(ev_base, fd_, 0);
-
-    in_buf_ = new Buffer(bufferevent_get_input(buf_ev));
-    out_buf_ = new Buffer(bufferevent_get_output(buf_ev));
-
-    bufferevent_setcb(buf_ev,
-                      readCallback,
-                      writeCallback,
-                      eventCallback,
-                      this);
-
-    bufferevent_enable(buf_ev, EV_READ);
-    bufferevent_disable(buf_ev, EV_WRITE);
-
-    readCallback(buf_ev, this);
 }
 
 TcpConnection::~TcpConnection()
@@ -119,6 +104,28 @@ void TcpConnection::setContext(boost::any context)
 boost::any *TcpConnection::getContext()
 {
     return &context_;
+}
+
+void TcpConnection::setBufferEvent(bufferevent *buf_ev)
+{
+    buf_ev_ = buf_ev;
+}
+
+void TcpConnection::bindEventLoop(EventLoop *event_loop)
+{
+    in_buf_ = new Buffer(bufferevent_get_input(buf_ev_));
+    out_buf_ = new Buffer(bufferevent_get_output(buf_ev_));
+
+    bufferevent_setcb(buf_ev_,
+                      readCallback,
+                      writeCallback,
+                      eventCallback,
+                      this);
+
+    bufferevent_enable(buf_ev_, EV_READ);
+    bufferevent_disable(buf_ev_, EV_WRITE);
+
+    readCallback(buf_ev_, this);
 }
 
 } // namespace let

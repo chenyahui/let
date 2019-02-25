@@ -21,7 +21,7 @@ class EventLoop
         event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
     }
 
-    const event_base *getEvBase() const
+    event_base *getEvBase() const
     {
         return ev_base_;
     }

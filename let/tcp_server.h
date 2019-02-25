@@ -4,7 +4,7 @@
 #include "acceptor.h"
 #include "callback.h"
 #include "ip_addr.h"
-#include "io_thread.h"
+#include "event_loop_thread.h"
 
 namespace let
 {
@@ -38,7 +38,7 @@ private:
 
 private:
   Acceptor acceptor_;
-  IoThreadPool io_thread_pool_;
+  EventLoopThreadPool event_loop_thread_pool_;
   ServerOptions options_;
 
   MessageCallback message_cb_;

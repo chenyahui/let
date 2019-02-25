@@ -15,10 +15,10 @@
 
 namespace let
 {
-class IoThread;
+class EventLoop;
 class Buffer;
 
-class TcpConnection : std::enable_shared_from_this<TcpConnection>
+class TcpConnection : public std::enable_shared_from_this<TcpConnection>
 {
 public:
   TcpConnection(int fd,
@@ -45,7 +45,9 @@ public:
 
   void setErrorCallback(const ErrorCallback &);
 
-  void bindIoThread(IoThread *);
+  void setBufferEvent(bufferevent*);
+
+  void bindEventLoop(EventLoop *);
 
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
@@ -55,7 +57,9 @@ private:
   static void eventCallback(struct bufferevent *bev, short events, void *ctx);
 
 private:
-  IpAddress ip_addr_;
+  IpAddress remote_addr_;
+  IpAddress local_addr_;
+
   evutil_socket_t fd_;
 
   bufferevent *buf_ev_;

@@ -35,11 +35,15 @@ void TcpClient::connect()
 void TcpClient::newConnection(evutil_socket_t fd)
 {
     auto tcp_conn = std::make_shared<TcpConnection>(fd, remote_addr_);
-    
+
     // set callbacks
     tcp_conn->setMessageCallback(message_cb_);
     tcp_conn->setCloseCallback(close_cb_);
     tcp_conn->setErrorCallback(error_cb_);
+
+    auto buf_ev = connector_.getBufferEvent();
+    tcp_conn->setBufferEvent(buf_ev);
+    tcp_conn->bindEventLoop(event_loop_);
 }
 
 } // namespace let

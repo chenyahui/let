@@ -27,10 +27,14 @@ EventLoopThread::~EventLoopThread()
     stop();
 }
 
-
-IoThread *EventLoopThread::getNextIoThread()
+const EventLoop &EventLoopThread::getEventLoop() const
 {
-    auto io_thread = io_threads_[next_];
-    next_ = (next_ + 1) % io_threads_.size();
+    return event_loop_;
+}
+
+EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
+{
+    auto io_thread = event_loop_threads_[next_];
+    next_ = (next_ + 1) % event_loop_threads_.size();
 }
 } // namespace let

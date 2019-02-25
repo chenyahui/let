@@ -4,28 +4,32 @@
 #include <functional>
 
 #include "ip_addr.h"
-#include "io_thread.h"
+#include "event_loop.h"
 
 namespace let
 {
 class Connector
 {
-  public:
-    typedef std::function<void(evutil_socket_t)> NewConnectionCallback;
+public:
+  typedef std::function<void(evutil_socket_t)> NewConnectionCallback;
 
-    Connector(const IpAddress &remote_addr, IoThread *io_thread);
+  Connector(const IpAddress &remote_addr, EventLoop *event_loop);
 
-    void connect();
+  void connect();
 
-    void setNewConnectionCallback(const NewConnectionCallback &callback);
+  void setNewConnectionCallback(const NewConnectionCallback &callback);
 
-  private:
-    static void handleEvent(struct bufferevent *bev, short events, void *ctx);
+  bufferevent *getBufferEvent();
 
-    IpAddress remote_addr_;
-    IoThread *io_thread_;
+private:
+  static void handleEvent(struct bufferevent *bev, short events, void *ctx);
 
-    NewConnectionCallback new_connect_cb_;
+  IpAddress remote_addr_;
+  EventLoop *event_loop_ = nullptr;
+
+  NewConnectionCallback new_connect_cb_;
+
+  bufferevent *buf_ev_ = nullptr;
 };
 } // namespace let
 #endif
