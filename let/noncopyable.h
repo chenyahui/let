@@ -4,6 +4,9 @@ namespace let
 {
 class NonCopyAble
 {
+  public:
+    NonCopyAble() = default;
+
   private:
     NonCopyAble(const NonCopyAble &) = delete;
     NonCopyAble &operator=(const NonCopyAble &) = delete;
