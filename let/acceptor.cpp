@@ -67,7 +67,7 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
         LOG_ERROR << "not an acceptor, fd : " << fd;
         return;
     }
-    IpAddress ip_addr(address, socklen);
+    IpAddress ip_addr(*(struct sockaddr_in *)address);
     self->new_connect_cb_(fd, ip_addr);
 }
 

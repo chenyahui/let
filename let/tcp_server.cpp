@@ -3,7 +3,9 @@
 //
 
 #include <functional>
+
 #include "tcp_server.h"
+#include "util.h"
 
 namespace let
 {
@@ -51,7 +53,9 @@ void TcpServer::setErrorCallback(const ErrorCallback &cb)
 
 void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 {
-    auto tcp_conn = std::make_shared<TcpConnection>(sockfd, ip_addr);
+    auto local_addr = IpAddress(get_local_addr(sockfd));
+
+    auto tcp_conn = std::make_shared<TcpConnection>(sockfd, local_addr, ip_addr);
 
     connections_[sockfd] = tcp_conn;
 

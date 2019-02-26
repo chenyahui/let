@@ -2,8 +2,8 @@
 //
 // Created by yahuichen(陈亚辉) on 2019/1/19.
 //
-#ifndef LET_IO_THREAD_H
-#define LET_IO_THREAD_H
+#ifndef LET_EVENT_LOOP_THREAD_H
+#define LET_EVENT_LOOP_THREAD_H
 
 #include <event2/event.h>
 #include <map>
@@ -61,4 +61,4 @@ private:
 };
 
 } // namespace let
-#endif //LET_IO_THREAD_H
+#endif //LET_EVENT_LOOP_THREAD_H

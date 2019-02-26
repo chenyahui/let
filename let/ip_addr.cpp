@@ -24,4 +24,9 @@ IpAddress::IpAddress(const std::string &ip, int port)
     }
 }
 
+IpAddress::IpAddress(const struct sockaddr_in &addr)
+    : addr_(addr)
+{
+}
+
 } // namespace let

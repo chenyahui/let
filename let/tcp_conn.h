@@ -12,11 +12,11 @@
 
 #include "callback.h"
 #include "ip_addr.h"
+#include "event_loop.h"
+#include "buffer.h"
 
 namespace let
 {
-class EventLoop;
-class Buffer;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>
 {

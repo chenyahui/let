@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 namespace let
 {
@@ -11,7 +12,7 @@ class IpAddress
 public:
   IpAddress(int port);
   IpAddress(const std::string &ip, int port);
-  IpAddress(struct sockaddr *address, int socklen);
+  IpAddress(const struct sockaddr_in& addr);
 
   const std::string &ip() const
   {

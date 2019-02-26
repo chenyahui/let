@@ -1,3 +1,6 @@
+#ifndef LET_EVENT_LOOP_H
+#define LET_EVENT_LOOP_H
+
 #include <event.h>
 
 #include "noncopyable.h"
@@ -36,3 +39,5 @@ class EventLoop : NonCopyAble
     event_base *ev_base_;
 };
 } // namespace let
+
+#endif

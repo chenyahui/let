@@ -4,6 +4,7 @@
 
 #include "tcp_client.h"
 #include "tcp_conn.h"
+#include "util.h"
 
 namespace let
 {
@@ -41,7 +42,8 @@ void TcpClient::connect()
 
 void TcpClient::newConnection(evutil_socket_t fd)
 {
-    auto tcp_conn = std::make_shared<TcpConnection>(fd, remote_addr_);
+    auto local_addr = IpAddress(get_local_addr(fd));
+    auto tcp_conn = std::make_shared<TcpConnection>(fd, local_addr, remote_addr_);
 
     // set callbacks
     tcp_conn->setMessageCallback(message_cb_);
