@@ -6,7 +6,8 @@
 #define LET_BUFFER_H
 
 #include <event2/buffer.h>
-#include <boost/utility/string_view.hpp>
+#include <string_view>
+#include <string>
 
 namespace let
 {
@@ -92,7 +93,7 @@ class Buffer
         return evbuffer_pullup(ev_buf_, size);
     }
 
-    boost::string_view readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)
+    std::string_view readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)
     {
         size_t n_read_out = 0;
         char *data = evbuffer_readln(ev_buf_, &n_read_out, eol_style);

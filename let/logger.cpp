@@ -3,7 +3,6 @@
 //
 
 #include <iostream>
-#include <boost/format.hpp>
 #include <cstdlib>
 
 #include "logger.h"
@@ -57,8 +56,17 @@ Logger::~Logger()
     }
     }
 
-    auto format_msg =
-        boost::format("%s [%s:%s:%s] [%s] %s") % now_time_str() % file_name_ % func_name_ % line_ % level_str % msg;
+    std::string now_time_str = format_now_time("%Y-%m-%d %H:%M:%S");
+
+    char* format_msg = new char[now_time_str.size() + file_name_.size() + func_name_.size() + level_str.size() + msg.size() + 50];
+
+    sprintf(format_msg, "%s [%s:%s:%d] [%s] %s",
+            now_time_str.c_str(),
+            file_name_.c_str(),
+            func_name_.c_str(),
+            line_,
+            level_str.c_str(),
+            msg.c_str());
 
     if (level_ > LogLevel::INFO)
     {
@@ -68,6 +76,8 @@ Logger::~Logger()
     {
         std::cout << format_msg << std::endl;
     }
+
+    delete format_msg;
 
     if (level_ == FATAL)
     {

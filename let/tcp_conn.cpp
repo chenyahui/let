@@ -3,7 +3,6 @@
 //
 
 #include <event2/event.h>
-
 #include "tcp_conn.h"
 #include "event_loop.h"
 #include "buffer.h"
@@ -96,12 +95,12 @@ Buffer *TcpConnection::outBuffer()
     return out_buf_;
 }
 
-void TcpConnection::setContext(boost::any context)
+void TcpConnection::setContext(std::any context)
 {
     context_ = context;
 }
 
-boost::any *TcpConnection::getContext()
+std::any *TcpConnection::getContext()
 {
     return &context_;
 }

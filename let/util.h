@@ -7,6 +7,7 @@
 
 #include <string>
 namespace let{
-    std::string now_time_str();
+    std::string format_time(time_t, const std::string& format);
+    std::string format_now_time(const std::string& format);
 }
 #endif //LET_UTIL_H

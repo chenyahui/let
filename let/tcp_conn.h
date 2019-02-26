@@ -8,7 +8,7 @@
 #include <event2/bufferevent.h>
 #include <memory>
 #include <string>
-#include <boost/any.hpp>
+#include <any>
 
 #include "callback.h"
 #include "ip_addr.h"
@@ -35,9 +35,9 @@ public:
 
   Buffer *outBuffer();
 
-  void setContext(boost::any context);
+  void setContext(std::any context);
 
-  boost::any *getContext();
+  std::any *getContext();
 
   void setMessageCallback(const MessageCallback &);
 
@@ -71,7 +71,7 @@ private:
   CloseCallback close_cb_;
   ErrorCallback error_cb_;
 
-  boost::any context_;
+  std::any context_;
 };
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

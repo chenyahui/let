@@ -1,6 +1,5 @@
 add_library(
         let
-
         tcp_client.h
         tcp_client.cpp
         tcp_server.h
@@ -9,9 +8,11 @@ add_library(
         tcp_conn.cpp
         acceptor.h
         acceptor.cpp
-        io_thread.h
-        io_thread.cpp
-        worker.h
+        connector.h
+        connector.cpp
+        event_loop_thread.h
+        event_loop_thread.cpp
+        event_loop.h
         socket.h
         socket.cpp
         logger.h

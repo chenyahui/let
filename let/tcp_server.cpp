@@ -65,6 +65,9 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     const auto &ev_loop = ev_loop_thread->getEventLoop();
     auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sockfd, BEV_OPT_CLOSE_ON_FREE);
 
+    // 设置高低水位
+    bufferevent_setwatermark(buf_ev, EV_READ, options_.read_low_water, options_.read_high_water);
+
     tcp_conn->setBufferEvent(buf_ev);
     tcp_conn->bindEventLoop((EventLoop *)(&ev_loop));
 }

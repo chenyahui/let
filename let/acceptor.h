@@ -10,15 +10,15 @@
 
 #include <functional>
 #include <vector>
-#include <boost/noncopyable.hpp>
 
+#include "noncopyable.h"
 #include "ip_addr.h"
 
 namespace let
 {
 // Acceptor仅负责接收新连接
 // todo accept失败了怎么办
-class Acceptor : boost::noncopyable
+class Acceptor : NonCopyAble
 {
 public:
   using NewConnectionCallback = std::function<void(evutil_socket_t sockfd, const IpAddress &)>;

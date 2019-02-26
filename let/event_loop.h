@@ -1,9 +1,9 @@
 #include <event.h>
-#include <boost/noncopyable.hpp>
 
+#include "noncopyable.h"
 namespace let
 {
-class EventLoop : boost::noncopyable
+class EventLoop : NonCopyAble
 {
   public:
     EventLoop()
