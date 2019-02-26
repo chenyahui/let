@@ -110,6 +110,16 @@ void TcpConnection::setBufferEvent(bufferevent *buf_ev)
     buf_ev_ = buf_ev;
 }
 
+const IpAddress &TcpConnection::getLocalAddr() const
+{
+    return local_addr_;
+}
+
+const IpAddress &TcpConnection::getRemoteAddr() const
+{
+    return remote_addr_;
+}
+
 void TcpConnection::bindEventLoop(EventLoop *event_loop)
 {
     in_buf_ = new Buffer(bufferevent_get_input(buf_ev_));

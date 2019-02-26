@@ -49,6 +49,10 @@ public:
 
   void bindEventLoop(EventLoop *);
 
+  const IpAddress& getLocalAddr() const;
+
+  const IpAddress& getRemoteAddr() const;
+
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 
