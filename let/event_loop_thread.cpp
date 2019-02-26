@@ -5,13 +5,15 @@
 #include <event2/bufferevent.h>
 
 #include <thread>
+#include <functional>
+
 #include "event_loop_thread.h"
 
 namespace let
 {
-void EventLoopThread::start()
+EventLoopThread::EventLoopThread()
+    : thread_(std::bind(&EventLoopThread::threadFunc, this))
 {
-    
 }
 
 EventLoopThread::~EventLoopThread()
@@ -22,6 +24,7 @@ EventLoopThread::~EventLoopThread()
 void EventLoopThread::stop()
 {
     event_loop_.stop();
+
     thread_.join();
 }
 

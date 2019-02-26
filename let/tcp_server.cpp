@@ -21,8 +21,12 @@ TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
 
 void TcpServer::run()
 {
-    event_loop_thread_pool_.start();
     acceptor_.listen();
+}
+
+void TcpServer::stop(){
+    acceptor_.stop();
+    event_loop_thread_pool_.stop();
 }
 
 void TcpServer::setMessageCallback(const MessageCallback &cb)

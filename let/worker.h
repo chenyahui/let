@@ -7,6 +7,9 @@
 #include <boost/lockfree/queue.hpp>
 #include <functional>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <vector>
 
 namespace let
 {
@@ -15,28 +18,45 @@ using Task = std::function<void()>;
 
 class Worker
 {
-  public:
-    Worker();
+public:
+  Worker();
 
-    void postTask(const Task &);
+  ~Worker();
 
-  private:
-    void threadFunc();
+  void postTask(const Task &);
 
-  private:
-    boost::lockfree::queue<Task> task_queue_;
-    std::thread work_thread_;
+  void stop();
+
+private:
+  void threadFunc();
+
+private:
+  boost::lockfree::queue<Task> task_queue_;
+  std::thread work_thread_;
+
+  std::mutex mutex_;
+  std::condition_variable cond_;
+  bool finish_ = false;
 };
 
 class WorkerPool
 {
-  public:
-    WorkerPool(size_t num)
-    {
-    }
-    void postTask(const Task &);
+public:
+  WorkerPool(size_t num)
+      : workers_(num)
+  {
+  }
 
-  private:
+  ~WorkerPool();
+
+  void stop();
+
+  void postTask(const Task &);
+
+private:
+  std::vector<Worker> workers_;
+
+  size_t next_ = 0;
 };
 
 } // namespace let

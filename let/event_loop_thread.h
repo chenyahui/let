@@ -49,8 +49,6 @@ public:
   {
   }
 
-  void start();
-
   void stop();
 
   EventLoopThread *getNextEventLoopThread();

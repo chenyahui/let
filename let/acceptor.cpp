@@ -51,12 +51,19 @@ Acceptor::Acceptor(const IpAddress &ipaddr)
 
 Acceptor::~Acceptor()
 {
+    stop();
     event_base_free(ev_base_);
     evconnlistener_free(listener_);
 }
 
 void Acceptor::listen()
 {
+    event_base_loop(ev_base_, 0);
+}
+
+void Acceptor::stop()
+{
+    event_base_loopbreak(ev_base_);
 }
 
 void Acceptor::handleAccept(struct evconnlistener *listener,
