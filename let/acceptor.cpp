@@ -7,7 +7,7 @@
 
 #include "acceptor.h"
 #include "logger.h"
-#include "socket.h"
+#include "ip_addr.h"
 
 namespace let
 {
@@ -19,22 +19,11 @@ namespace let
 	 * ipv4:port
 	 * ipv4
 	 */
-Acceptor::Acceptor(const IpAddress &ipaddr)
+Acceptor::Acceptor(const IpAddress &ip_addr)
     : ev_base_(event_base_new())
 {
-    struct sockaddr_in listen_on_addr;
 
-    int socklen = sizeof(listen_on_addr);
-
-    auto ip_addr_str = ipaddr.format();
-
-    // todo 优化
-    if (evutil_parse_sockaddr_port(ip_addr_str.c_str(),
-                                   (struct sockaddr *)&listen_on_addr,
-                                   &socklen))
-    {
-        LOG_FATAL << "ip format is wrong: " << ip_addr_str;
-    }
+    auto listen_on_addr = ip_addr.getSockAddrIn();
 
     listener_ = evconnlistener_new_bind(ev_base_,
                                         handleAccept,
@@ -42,7 +31,7 @@ Acceptor::Acceptor(const IpAddress &ipaddr)
                                         LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
                                         -1,
                                         (struct sockaddr *)&listen_on_addr,
-                                        socklen);
+                                        sizeof(struct sockaddr_in));
     if (!listener_)
     {
         LOG_FATAL << "couldn't open listener";

@@ -47,7 +47,7 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 {
     auto self = (TcpConnection *)ctx;
 
-    self->message_cb_(shared_from_this());
+    self->message_cb_(self->shared_from_this());
 }
 
 void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
@@ -62,11 +62,11 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     bool finished = false;
     if (events & BEV_EVENT_EOF)
     {
-        self->close_cb_(shared_from_this());
+        self->close_cb_(self->shared_from_this());
     }
     else if (events & BEV_EVENT_ERROR)
     {
-        self->error_cb_(shared_from_this(), EVUTIL_SOCKET_ERROR());
+        self->error_cb_(self->shared_from_this(), EVUTIL_SOCKET_ERROR());
     }
 }
 

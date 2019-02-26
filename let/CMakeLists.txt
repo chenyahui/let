@@ -13,12 +13,12 @@ add_library(
         event_loop_thread.h
         event_loop_thread.cpp
         event_loop.h
-        socket.h
-        socket.cpp
         logger.h
         logger.cpp
         util.h
         util.cpp
         buffer.h
         callback.h
+        ip_addr.h
+        ip_addr.cpp
 )

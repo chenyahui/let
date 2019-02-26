@@ -10,9 +10,10 @@ bool Connector::connect()
 
     bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, nullptr);
 
-    auto sock_addr = remote_addr_.getSockAddr();
+    auto sock_addr = remote_addr_.getSockAddrIn();
     if (bufferevent_socket_connect(buf_ev_,
-                                   sock_addr, sizeof(struct sockaddr_in)) < 0)
+                                   (struct sockaddr *)sock_addr,
+                                   sizeof(struct sockaddr_in)) < 0)
     {
         bufferevent_free(buf_ev_);
         return false;
@@ -22,7 +23,7 @@ bool Connector::connect()
 
 void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
 {
-    auto self = (Connector*) ctx;
+    auto self = (Connector *)ctx;
     if (events & BEV_EVENT_CONNECTED)
     {
         /* We're connected to 127.0.0.1:8080.   Ordinarily we'd do

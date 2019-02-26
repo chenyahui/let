@@ -9,12 +9,8 @@ namespace let
 class IpAddress
 {
 public:
-  IpAddress(const std::string &ip, int port)
-      : ip_(ip),
-        port_(port)
-  {
-  }
-
+  IpAddress(int port);
+  IpAddress(const std::string &ip, int port);
   IpAddress(struct sockaddr *address, int socklen);
 
   const std::string &ip() const
@@ -29,21 +25,19 @@ public:
 
   std::string format() const
   {
-    return ip_ + std::to_string(port_);
+    return ip_ + ":" + std::to_string(port_);
   }
 
-  const struct sockaddr* getSockAddr(){
-    return (struct sockaddr*)&addr_;
+  const struct sockaddr_in *getSockAddrIn() const
+  {
+    return &addr_;
   }
+
 private:
   std::string ip_;
   int port_;
 
-  union
-  {
-    struct sockaddr_in addr_;
-    struct sockaddr_in6 addr6_;
-  };
+  struct sockaddr_in addr_;
 };
 } // namespace let
 #endif /* LET_IP_ADDR_H */
