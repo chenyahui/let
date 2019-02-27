@@ -7,7 +7,7 @@
 namespace let
 {
 IpAddress::IpAddress(int port)
-    : IpAddress("127.0.0.1", port)
+    : IpAddress("0.0.0.0", port)
 {
 }
 

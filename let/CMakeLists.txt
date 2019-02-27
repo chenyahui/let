@@ -22,3 +22,5 @@ add_library(
         ip_addr.h
         ip_addr.cpp
 )
+
+target_link_libraries(let event pthread)

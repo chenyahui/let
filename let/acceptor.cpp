@@ -25,6 +25,8 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
 
     auto listen_on_addr = ip_addr.getSockAddrIn();
 
+    LOG_DEBUG << "listen_on_addr: " << listen_on_addr->sin_addr.s_addr << ":" << listen_on_addr->sin_port;
+
     listener_ = evconnlistener_new_bind(ev_base_,
                                         handleAccept,
                                         this,

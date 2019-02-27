@@ -38,6 +38,23 @@ const EventLoop &EventLoopThread::getEventLoop() const
     return event_loop_;
 }
 
+void EventLoopThreadPool::stop()
+{
+    for (auto &loop : event_loop_threads_)
+    {
+        loop->stop();
+    }
+}
+
+EventLoopThreadPool::~EventLoopThreadPool()
+{
+    stop();
+    for (auto &loop : event_loop_threads_)
+    {
+        delete loop;
+    }
+}
+
 EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
 {
     auto io_thread = event_loop_threads_[next_];
