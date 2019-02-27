@@ -12,13 +12,6 @@
 namespace let
 {
 
-/* recognized formats are:
-	 * [ipv6]:port
-	 * ipv6
-	 * [ipv6]
-	 * ipv4:port
-	 * ipv4
-	 */
 Acceptor::Acceptor(const IpAddress &ip_addr)
     : ev_base_(event_base_new())
 {

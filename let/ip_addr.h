@@ -43,7 +43,8 @@ private:
   std::string ip_;
   int port_;
 
-  struct sockaddr_in addr_;
+  struct sockaddr addr_;
+  int socket_len_;
 };
 } // namespace let
 #endif /* LET_IP_ADDR_H */

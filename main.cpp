@@ -15,7 +15,7 @@ int main()
     event_enable_debug_mode();
     event_set_log_callback(log);
 
-    TcpServer server(ServerOptions(), IpAddress(" 10.40.96.67", 8080));
+    TcpServer server(ServerOptions(), IpAddress("0.0.0.0", 8080));
     server.setMessageCallback([](TcpConnectionPtr conn) {
         auto buffer = conn->inputBuffer()->pullUp();
         std::cout << buffer << std::endl;
