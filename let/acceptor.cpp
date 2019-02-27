@@ -34,9 +34,9 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
                                         -1,
                                         (struct sockaddr *)&listen_on_addr,
                                         sizeof(struct sockaddr_in));
-    if (!listener_)
+    if (listener_ == nullptr)
     {
-        LOG_FATAL << "couldn't open listener";
+        LOG_FATAL << "couldn't open listener! errno[" << errno << "]: " << strerror(errno);
     }
 }
 

@@ -1,5 +1,6 @@
 #include <strings.h> // bzero
 #include <arpa/inet.h>
+#include <event2/util.h>
 
 #include "ip_addr.h"
 #include "logger.h"
@@ -15,12 +16,12 @@ IpAddress::IpAddress(const std::string &ip, int port)
     : ip_(ip),
       port_(port)
 {
-    addr_.sin_family = AF_INET;
-    addr_.sin_port = htobe16(port);
-
-    if (::inet_pton(AF_INET, ip.c_str(), &addr_.sin_addr) <= 0)
+    int socket_len = 0;
+    std::string format_ip = format();
+    LOG_DEBUG << "format ip" << format_ip;
+    if (evutil_parse_sockaddr_port(format_ip.c_str(), (struct sockaddr *)&addr_, &socket_len) < 0)
     {
-        LOG_ERROR << "inet_pton error: " << ip << ":" << port;
+        LOG_ERROR << "address parse error: " << format_ip;
     }
 }
 
@@ -28,5 +29,4 @@ IpAddress::IpAddress(const struct sockaddr_in &addr)
     : addr_(addr)
 {
 }
-
 } // namespace let

@@ -12,7 +12,7 @@ class IpAddress
 public:
   IpAddress(int port);
   IpAddress(const std::string &ip, int port);
-  IpAddress(const struct sockaddr_in& addr);
+  IpAddress(const struct sockaddr_in &addr);
 
   const std::string &ip() const
   {
@@ -29,9 +29,14 @@ public:
     return ip_ + ":" + std::to_string(port_);
   }
 
-  const struct sockaddr_in *getSockAddrIn() const
+  struct sockaddr_in *getSockAddrIn() const
   {
-    return &addr_;
+    return (struct sockaddr_in *)&addr_;
+  }
+
+  struct sockaddr *getSockAddr() const
+  {
+    return (struct sockaddr *)&addr_;
   }
 
 private:
