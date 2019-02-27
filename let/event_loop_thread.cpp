@@ -57,7 +57,8 @@ EventLoopThreadPool::~EventLoopThreadPool()
 
 EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
 {
-    auto io_thread = event_loop_threads_[next_];
+    auto event_loop_thread = event_loop_threads_[next_];
     next_ = (next_ + 1) % event_loop_threads_.size();
+    return event_loop_thread;
 }
 } // namespace let

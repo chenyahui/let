@@ -84,10 +84,6 @@ class Buffer
         return search(what.c_str(), what.size());
     }
 
-    evbuffer_ptr searchEOL()
-    {
-    }
-
     unsigned char *pullUp(ev_ssize_t size = -1)
     {
         return evbuffer_pullup(ev_buf_, size);

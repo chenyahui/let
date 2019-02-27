@@ -3,6 +3,7 @@
 
 #include <event2/listener.h>
 #include <memory>
+#include <map>
 
 #include "acceptor.h"
 #include "callback.h"

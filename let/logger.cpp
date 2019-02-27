@@ -77,7 +77,7 @@ Logger::~Logger()
         std::cout << format_msg << std::endl;
     }
 
-    delete format_msg;
+    delete[] format_msg;
 
     if (level_ == FATAL)
     {

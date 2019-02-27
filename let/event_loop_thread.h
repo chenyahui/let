@@ -6,9 +6,9 @@
 #define LET_EVENT_LOOP_THREAD_H
 
 #include <event2/event.h>
-#include <map>
 #include <memory>
 #include <thread>
+#include <vector>
 
 #include "tcp_conn.h"
 #include "event_loop.h"
