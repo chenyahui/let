@@ -28,9 +28,9 @@ std::string format_now_time(const std::string &format)
     return format_time(rawtime, format);
 }
 
-struct sockaddr_in get_local_addr(int sockfd)
+struct sockaddr_in6 get_local_addr(int sockfd)
 {
-    struct sockaddr_in localaddr;
+    struct sockaddr_in6 localaddr;
     bzero(&localaddr, sizeof localaddr);
     socklen_t addrlen = static_cast<socklen_t>(sizeof localaddr);
     if (::getsockname(sockfd, (struct sockaddr *)(&localaddr), &addrlen) < 0)
@@ -39,9 +39,9 @@ struct sockaddr_in get_local_addr(int sockfd)
     }
     return localaddr;
 }
-struct sockaddr_in get_peer_addr(int sockfd)
+struct sockaddr_in6 get_peer_addr(int sockfd)
 {
-    struct sockaddr_in peeraddr;
+    struct sockaddr_in6 peeraddr;
     bzero(&peeraddr, sizeof peeraddr);
     socklen_t addrlen = static_cast<socklen_t>(sizeof peeraddr);
     if (::getpeername(sockfd, (struct sockaddr *)(&peeraddr), &addrlen) < 0)
@@ -50,4 +50,5 @@ struct sockaddr_in get_peer_addr(int sockfd)
     }
     return peeraddr;
 }
+
 } // namespace let

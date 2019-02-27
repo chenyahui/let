@@ -1,6 +1,8 @@
 #include <sys/socket.h>
+#include <cstring>
 
 #include "connector.h"
+#include "logger.h"
 
 namespace let
 {
@@ -10,7 +12,7 @@ bool Connector::connect()
 
     bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, nullptr);
 
-    auto sock_addr = remote_addr_.getSockAddrIn();
+    auto sock_addr = remote_addr_.getSockAddr();
     if (bufferevent_socket_connect(buf_ev_,
                                    (struct sockaddr *)sock_addr,
                                    sizeof(struct sockaddr_in)) < 0)
@@ -34,6 +36,7 @@ void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
     }
     else if (events & BEV_EVENT_ERROR)
     {
+        LOG_ERROR << "connector accept error, erron[" << errno << "]: " << strerror(errno);
     }
 }
 } // namespace let

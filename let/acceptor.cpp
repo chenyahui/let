@@ -16,17 +16,17 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
     : ev_base_(event_base_new())
 {
 
-    auto listen_on_addr = ip_addr.getSockAddrIn();
+    auto listen_on_addr = ip_addr.getSockAddr();
 
-    LOG_DEBUG << "listen_on_addr: " << listen_on_addr->sin_addr.s_addr << ":" << listen_on_addr->sin_port;
+    int sock_len = ip_addr.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
 
     listener_ = evconnlistener_new_bind(ev_base_,
                                         handleAccept,
                                         this,
                                         LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
                                         -1,
-                                        (struct sockaddr *)&listen_on_addr,
-                                        sizeof(struct sockaddr_in));
+                                        listen_on_addr,
+                                        sock_len);
     if (listener_ == nullptr)
     {
         LOG_FATAL << "couldn't open listener! errno[" << errno << "]: " << strerror(errno);
@@ -62,7 +62,8 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
         LOG_ERROR << "not an acceptor, fd : " << fd;
         return;
     }
-    IpAddress ip_addr(*(struct sockaddr_in *)address);
+    
+    IpAddress ip_addr(address);
     self->new_connect_cb_(fd, ip_addr);
 }
 

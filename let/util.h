@@ -6,10 +6,15 @@
 #define LET_UTIL_H
 
 #include <string>
+
+#include "ip_addr.h"
+
 namespace let{
     std::string format_time(time_t, const std::string& format);
     std::string format_now_time(const std::string& format);
-    struct sockaddr_in get_local_addr(int sockfd);
-    struct sockaddr_in get_peer_addr(int sockfd);
+
+    // 用sockaddr_in6解析可以兼容sockaddr_in
+    struct sockaddr_in6 get_local_addr(int sockfd);
+    struct sockaddr_in6 get_peer_addr(int sockfd);
 }
 #endif //LET_UTIL_H
