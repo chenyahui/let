@@ -3,3 +3,5 @@
 * 支持ipv6
 * 支持ssl
 * connect_pool
+* 过期链接检测
+* 超时时间配置

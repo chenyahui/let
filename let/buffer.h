@@ -84,9 +84,10 @@ class Buffer
         return search(what.c_str(), what.size());
     }
 
-    unsigned char *pullUp(ev_ssize_t size = -1)
+    std::string_view pullUp(ev_ssize_t size = -1)
     {
-        return evbuffer_pullup(ev_buf_, size);
+        auto buffer = (char *)evbuffer_pullup(ev_buf_, size);
+        return std::string_view(buffer, length());
     }
 
     std::string_view readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)

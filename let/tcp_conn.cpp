@@ -31,9 +31,14 @@ evutil_socket_t TcpConnection::getFd()
     return bufferevent_getfd(buf_ev_);
 }
 
-void TcpConnection::send(const std::string &message)
+// void TcpConnection::send(const std::string &message)
+// {
+//     send(message.c_str(), message.size());
+// }
+
+void TcpConnection::send(std::string_view message)
 {
-    send(message.c_str(), message.size());
+    send(message.data(), message.size());
 }
 
 void TcpConnection::send(const void *message, size_t len)
@@ -124,7 +129,6 @@ const IpAddress &TcpConnection::getRemoteAddr() const
 
 void TcpConnection::setBufferEvent(bufferevent *buf_ev)
 {
-    LOG_DEBUG << "tcp connection set bufferevent";
     buf_ev_ = buf_ev;
 
     in_buf_ = new Buffer(bufferevent_get_input(buf_ev_));
