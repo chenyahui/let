@@ -21,7 +21,7 @@ int main()
 
     server.setMessageCallback([](TcpConnectionPtr conn) {
         auto buffer = conn->inputBuffer()->pullUp();
-        std::cout << buffer;
+        std::cout << "hi! " << buffer << "\n";
         conn->send(buffer);
     });
 

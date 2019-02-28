@@ -45,25 +45,30 @@ void TcpConnection::send(const void *message, size_t len)
 {
     out_buf_->add(message, len);
 
-    bufferevent_setcb(buf_ev_,
-                      nullptr,
-                      writeCallback,
-                      eventCallback,
-                      this);
+    // bufferevent_setcb(buf_ev_,
+    //                   nullptr,
+    //                   writeCallback,
+    //                   eventCallback,
+    //                   this);
 
     bufferevent_enable(buf_ev_, EV_READ | EV_WRITE);
 }
 
 void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 {
-    LOG_INFO << "tcp connnection read callback";   
+    LOG_INFO << "tcp connnection read callback called";   
     auto self = (TcpConnection *)ctx;
 
-    self->message_cb_(self->shared_from_this());
+    if(self->message_cb_){
+        LOG_DEBUG << "begin call message callback";   
+        self->message_cb_(self->shared_from_this());
+        LOG_DEBUG << "end call message callback";   
+    }
 }
 
 void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
 {
+    LOG_INFO << "tcp connnection write callback called";   
     auto conn = (TcpConnection *)ctx;
 }
 
@@ -74,11 +79,19 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     bool finished = false;
     if (events & BEV_EVENT_EOF)
     {
-        self->close_cb_(self->shared_from_this());
+        LOG_INFO << "tcp connnection close callback called";   
+
+        if(self->close_cb_){
+            self->close_cb_(self->shared_from_this());
+        }
     }
     else if (events & BEV_EVENT_ERROR)
     {
-        self->error_cb_(self->shared_from_this(), EVUTIL_SOCKET_ERROR());
+        LOG_INFO << "tcp connnection error callback called";   
+
+        if(self->error_cb_){
+            self->error_cb_(self->shared_from_this(), EVUTIL_SOCKET_ERROR());
+        }
     }
 }
 

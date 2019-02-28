@@ -26,15 +26,20 @@ bool Connector::connect()
 
     if (!buf_ev_)
     {
+        evutil_closesocket(sock);
         LOG_ERROR << "create bufferevent error";
         return false;
     }
-    bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, nullptr);
+
+    bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, this);
 
     auto sock_addr = remote_addr_.getSockAddr();
+
+    int sock_len = remote_addr_.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
+    
     if (bufferevent_socket_connect(buf_ev_,
                                    (struct sockaddr *)sock_addr,
-                                   sizeof(struct sockaddr_in)) < 0)
+                                   sock_len) < 0)
     {
         bufferevent_free(buf_ev_);
         return false;
