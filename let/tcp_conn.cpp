@@ -30,6 +30,11 @@ evutil_socket_t TcpConnection::getFd()
     return bufferevent_getfd(buf_ev_);
 }
 
+void TcpConnection::send(const std::string &message)
+{
+    send(message.c_str(), message.size());
+}
+
 void TcpConnection::send(const void *message, size_t len)
 {
     out_buf_->add(message, len);

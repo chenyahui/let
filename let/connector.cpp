@@ -6,6 +6,11 @@
 
 namespace let
 {
+Connector::Connector(EventLoop *event_loop, const IpAddress &remote_addr)
+    : event_loop_(event_loop), remote_addr_(remote_addr)
+{
+}
+
 bool Connector::connect()
 {
     buf_ev_ = bufferevent_socket_new(event_loop_->getEvBase(), -1, BEV_OPT_CLOSE_ON_FREE);
@@ -32,11 +37,24 @@ void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
             something here, like start reading or writing. */
         // 1. new tcp conn
         // 2. bind to io threads
-        self->new_connect_cb_(bufferevent_getfd(bev));
+        if (self->new_connect_cb_)
+        {
+            self->new_connect_cb_(bufferevent_getfd(bev));
+        }
     }
     else if (events & BEV_EVENT_ERROR)
     {
         LOG_ERROR << "connector accept error, erron[" << errno << "]: " << strerror(errno);
     }
+}
+
+const bufferevent *Connector::getBufferEvent() const
+{
+    return buf_ev_;
+}
+
+void Connector::setNewConnectionCallback(const NewConnectionCallback &cb)
+{
+    new_connect_cb_ = cb;
 }
 } // namespace let

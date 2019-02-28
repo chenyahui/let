@@ -24,5 +24,11 @@ set(CXX_FLAGS
 add_subdirectory(let)
 
 include_directories(./)
-add_executable(let_test main.cpp)
-target_link_libraries(let_test let)
+
+# server
+add_executable(let_test_server server.cpp)
+target_link_libraries(let_test_server let)
+
+# client
+add_executable(let_test_client client.cpp)
+target_link_libraries(let_test_client let)
