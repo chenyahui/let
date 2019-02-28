@@ -25,6 +25,8 @@ class TcpServer
 public:
   TcpServer(const ServerOptions &options, const IpAddress &ip_addr);
 
+  TcpServer(const IpAddress &ip_addr);
+
   void run();
 
   void stop();
@@ -33,7 +35,7 @@ public:
 
   void setConnectionCallback(const ConnectionCallback &);
 
-  void setCloseCallback(const CloseCallback &);
+  void setDisconnectionCallback(const DisconnectionCallback &);
 
   void setErrorCallback(const ErrorCallback &);
 
@@ -47,7 +49,7 @@ private:
 
   MessageCallback message_cb_;
   ConnectionCallback connection_cb_;
-  CloseCallback close_cb_;
+  DisconnectionCallback disconnection_cb_;
   ErrorCallback error_cb_;
 
   std::map<int, TcpConnectionPtr> connections_;

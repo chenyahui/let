@@ -25,9 +25,9 @@ void TcpClient::setConnectionCallback(const ConnectionCallback &cb)
     connection_cb_ = cb;
 }
 
-void TcpClient::setCloseCallback(const CloseCallback &cb)
+void TcpClient::setDisconnectionCallback(const DisconnectionCallback &cb)
 {
-    close_cb_ = cb;
+    disconnection_cb_ = cb;
 }
 
 void TcpClient::setErrorCallback(const ErrorCallback &cb)
@@ -47,7 +47,7 @@ void TcpClient::newConnection(evutil_socket_t fd)
 
     // set callbacks
     tcp_conn->setMessageCallback(message_cb_);
-    tcp_conn->setCloseCallback(close_cb_);
+    tcp_conn->setDisconnectionCallback(disconnection_cb_);
     tcp_conn->setErrorCallback(error_cb_);
 
     auto buf_ev = connector_.getBufferEvent();

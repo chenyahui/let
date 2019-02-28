@@ -27,7 +27,7 @@ public:
 
   void setConnectionCallback(const ConnectionCallback &);
 
-  void setCloseCallback(const CloseCallback &);
+  void setDisconnectionCallback(const DisconnectionCallback &);
 
   void setErrorCallback(const ErrorCallback &);
 
@@ -43,7 +43,7 @@ private:
 
   MessageCallback message_cb_;
   ConnectionCallback connection_cb_;
-  CloseCallback close_cb_;
+  DisconnectionCallback disconnection_cb_;
   ErrorCallback error_cb_;
 
 };

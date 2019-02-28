@@ -71,7 +71,6 @@ void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
 {
     auto conn = (TcpConnection *)ctx;
 
-    // 如果发送完依然有，则
     bufferevent_setcb(conn->buf_ev_,
                       readCallback, // 设为null是因为禁止读，但是还想监听到close
                       writeCallback,
@@ -80,6 +79,7 @@ void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
 
     bufferevent_enable(conn->buf_ev_, EV_READ);
 
+    // 如果buffer中被发送完了，则禁用write事件
     if (conn->out_buf_->empty())
     {
         bufferevent_disable(conn->buf_ev_, EV_WRITE);
@@ -95,9 +95,9 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     {
         LOG_INFO << "tcp connnection close callback called";
 
-        if (self->close_cb_)
+        if (self->disconnection_cb_)
         {
-            self->close_cb_(self->shared_from_this());
+            self->disconnection_cb_(self->shared_from_this());
         }
     }
     else if (events & BEV_EVENT_ERROR)
@@ -116,9 +116,9 @@ void TcpConnection::setMessageCallback(const MessageCallback &cb)
     message_cb_ = cb;
 }
 
-void TcpConnection::setCloseCallback(const CloseCallback &cb)
+void TcpConnection::setDisconnectionCallback(const DisconnectionCallback &cb)
 {
-    close_cb_ = cb;
+    disconnection_cb_ = cb;
 }
 
 void TcpConnection::setErrorCallback(const ErrorCallback &cb)

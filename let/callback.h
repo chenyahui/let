@@ -15,8 +15,8 @@ class TcpConnection;
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 
 using ConnectionCallback = std::function<void(TcpConnectionPtr)>;
+using DisconnectionCallback = std::function<void(TcpConnectionPtr)>;
 using MessageCallback = std::function<void(TcpConnectionPtr)>;
-using CloseCallback = std::function<void(TcpConnectionPtr)>;
 
 // conn, errorCode
 using ErrorCallback = std::function<void(TcpConnectionPtr, int)>;

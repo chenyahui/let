@@ -11,6 +11,11 @@
 namespace let
 {
 
+TcpServer::TcpServer(const IpAddress &ip_addr)
+    : TcpServer(ServerOptions(), ip_addr)
+{
+}
+
 TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
     : options_(options),
       acceptor_(ip_addr),
@@ -44,9 +49,9 @@ void TcpServer::setConnectionCallback(const ConnectionCallback &cb)
     connection_cb_ = cb;
 }
 
-void TcpServer::setCloseCallback(const CloseCallback &cb)
+void TcpServer::setDisconnectionCallback(const DisconnectionCallback &cb)
 {
-    close_cb_ = cb;
+    disconnection_cb_ = cb;
 }
 
 void TcpServer::setErrorCallback(const ErrorCallback &cb)
@@ -65,7 +70,7 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);
-    tcp_conn->setCloseCallback(close_cb_);
+    tcp_conn->setDisconnectionCallback(disconnection_cb_);
     tcp_conn->setErrorCallback(error_cb_);
 
     // create bufferevent
