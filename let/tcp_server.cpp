@@ -6,6 +6,7 @@
 
 #include "tcp_server.h"
 #include "util.h"
+#include "logger.h"
 
 namespace let
 {
@@ -53,6 +54,7 @@ void TcpServer::setErrorCallback(const ErrorCallback &cb)
 
 void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 {
+    LOG_INFO << "tcp server get new connection, " << ip_addr.format();
     auto local_addr = IpAddress(get_local_addr(sockfd));
 
     auto tcp_conn = std::make_shared<TcpConnection>(sockfd, local_addr, ip_addr);

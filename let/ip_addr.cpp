@@ -8,8 +8,11 @@
 namespace let
 {
 IpAddress::IpAddress(int port)
-    : IpAddress("0.0.0.0", port)
+    : port_(port)
 {
+    addr_.sin_family = AF_INET;
+    addr_.sin_addr.s_addr = INADDR_ANY;
+    addr_.sin_port = htons(port);
 }
 
 IpAddress::IpAddress(const std::string &ip, int port)

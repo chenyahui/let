@@ -62,9 +62,16 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
         LOG_ERROR << "not an acceptor, fd : " << fd;
         return;
     }
-    
+    LOG_INFO << "accept new connection, fd is " << fd;
     IpAddress ip_addr(address);
-    self->new_connect_cb_(fd, ip_addr);
+
+    LOG_INFO << "address has parsed, ip is: " << ip_addr.ip()
+             << ", port is " << ip_addr.port();
+             
+    if (self->new_connect_cb_)
+    {
+        self->new_connect_cb_(fd, ip_addr);
+    }
 }
 
 void Acceptor::setNewConnectionCallback(const NewConnectionCallback &callback)

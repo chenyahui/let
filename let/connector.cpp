@@ -3,6 +3,7 @@
 
 #include "connector.h"
 #include "logger.h"
+#include "util.h"
 
 namespace let
 {
@@ -13,8 +14,21 @@ Connector::Connector(EventLoop *event_loop, const IpAddress &remote_addr)
 
 bool Connector::connect()
 {
-    buf_ev_ = bufferevent_socket_new(event_loop_->getEvBase(), -1, BEV_OPT_CLOSE_ON_FREE);
+    auto sock = create_noblocking_socket();
+    
+    if (sock < 0)
+    {
+        LOG_ERROR << "create socket error";
+        return false;
+    }
 
+    buf_ev_ = bufferevent_socket_new(event_loop_->getEvBase(), sock, BEV_OPT_CLOSE_ON_FREE);
+
+    if (!buf_ev_)
+    {
+        LOG_ERROR << "create bufferevent error";
+        return false;
+    }
     bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, nullptr);
 
     auto sock_addr = remote_addr_.getSockAddr();
@@ -33,10 +47,6 @@ void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
     auto self = (Connector *)ctx;
     if (events & BEV_EVENT_CONNECTED)
     {
-        /* We're connected to 127.0.0.1:8080.   Ordinarily we'd do
-            something here, like start reading or writing. */
-        // 1. new tcp conn
-        // 2. bind to io threads
         if (self->new_connect_cb_)
         {
             self->new_connect_cb_(bufferevent_getfd(bev));
@@ -44,7 +54,7 @@ void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
     }
     else if (events & BEV_EVENT_ERROR)
     {
-        LOG_ERROR << "connector accept error, erron[" << errno << "]: " << strerror(errno);
+        LOG_ERROR << "connector connect error, erron[" << errno << "]: " << strerror(errno);
     }
 }
 

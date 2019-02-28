@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <strings.h> // bzero
 #include <arpa/inet.h>
+#include <event2/util.h>
 
 #include "logger.h"
 #include "util.h"
@@ -39,6 +40,7 @@ struct sockaddr_in6 get_local_addr(int sockfd)
     }
     return localaddr;
 }
+
 struct sockaddr_in6 get_peer_addr(int sockfd)
 {
     struct sockaddr_in6 peeraddr;
@@ -49,6 +51,22 @@ struct sockaddr_in6 get_peer_addr(int sockfd)
         LOG_ERROR << "get_peer_addr error, fd is" << sockfd;
     }
     return peeraddr;
+}
+
+int create_noblocking_socket()
+{
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0)
+    {
+        return sock;
+    }
+
+    if (evutil_make_socket_nonblocking(sock) < 0)
+    {
+        evutil_closesocket(sock);
+        return -1;
+    }
+    return sock;
 }
 
 } // namespace let

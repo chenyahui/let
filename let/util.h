@@ -16,5 +16,7 @@ namespace let{
     // 用sockaddr_in6解析可以兼容sockaddr_in
     struct sockaddr_in6 get_local_addr(int sockfd);
     struct sockaddr_in6 get_peer_addr(int sockfd);
+
+    int create_noblocking_socket();
 }
 #endif //LET_UTIL_H
