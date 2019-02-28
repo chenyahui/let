@@ -50,6 +50,7 @@ bool Connector::connect()
 void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
 {
     auto self = (Connector *)ctx;
+    
     if (events & BEV_EVENT_CONNECTED)
     {
         if (self->new_connect_cb_)

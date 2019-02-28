@@ -19,11 +19,13 @@ IpAddress::IpAddress(const std::string &ip, int port)
     : ip_(ip),
       port_(port)
 {
-    std::string format_ip = format();
     int socket_len = sizeof(addr6_);
-    if (evutil_parse_sockaddr_port(ip.c_str(), (struct sockaddr *)&addr6_, &socket_len) < 0)
+
+    auto format_ip_port = format();
+
+    if (evutil_parse_sockaddr_port(format_ip_port.c_str(), (struct sockaddr *)&addr6_, &socket_len) < 0)
     {
-        LOG_ERROR << "address parse error: " << format_ip;
+        LOG_ERROR << "address parse error: " << format();
     }
 
     is_ipv6_ = addr6_.sin6_family == AF_INET6;
@@ -39,6 +41,8 @@ IpAddress::IpAddress(const struct sockaddr *sa)
     char b[128];
     const char *res = NULL;
 
+    is_ipv6_ = sa->sa_family == AF_INET6;
+    
     if (sa->sa_family == AF_INET)
     {
         const struct sockaddr_in *sin = (const struct sockaddr_in *)sa;
@@ -46,7 +50,6 @@ IpAddress::IpAddress(const struct sockaddr *sa)
 
         res = evutil_inet_ntop(AF_INET, &sin->sin_addr, b, sizeof(b));
         port_ = ntohs(sin->sin_port);
-        is_ipv6_ = false;
     }
 
     if (sa->sa_family == AF_INET6)
@@ -56,7 +59,6 @@ IpAddress::IpAddress(const struct sockaddr *sa)
 
         res = evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, b, sizeof(b));
         port_ = ntohs(sin6->sin6_port);
-        is_ipv6_ = true;
     }
 
     if (!res)

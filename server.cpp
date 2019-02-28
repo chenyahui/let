@@ -17,7 +17,7 @@ int main()
 
     ServerOptions options;
 
-    TcpServer server(options, IpAddress(8079));
+    TcpServer server(options, IpAddress("0.0.0.0", 8079));
 
     server.setMessageCallback([](TcpConnectionPtr conn) {
         auto buffer = conn->inputBuffer()->pullUp();

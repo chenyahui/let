@@ -18,6 +18,8 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
 
     auto listen_on_addr = ip_addr.getSockAddr();
 
+    LOG_DEBUG << "ip addr is ipv6: " << ip_addr.isIpv6() << ", " << ip_addr.format();
+
     int sock_len = ip_addr.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
 
     listener_ = evconnlistener_new_bind(ev_base_,
@@ -36,8 +38,8 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
 Acceptor::~Acceptor()
 {
     stop();
-    event_base_free(ev_base_);
     evconnlistener_free(listener_);
+    event_base_free(ev_base_);
 }
 
 void Acceptor::listen()
