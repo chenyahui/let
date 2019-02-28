@@ -16,23 +16,40 @@ class Buffer
 {
   public:
     explicit Buffer(evbuffer *ev_buf)
-        : ev_buf_(ev_buf)
+        : ev_buf_(ev_buf),
+          free_on_deconstruct_(false)
     {
     }
 
     Buffer()
-        : ev_buf_(evbuffer_new())
+        : ev_buf_(evbuffer_new()),
+          free_on_deconstruct_(true)
     {
     }
 
     virtual ~Buffer()
     {
-        evbuffer_free(ev_buf_);
+        if (free_on_deconstruct_)
+        {
+            evbuffer_free(ev_buf_);
+        }
     }
 
-    size_t length()
+    size_t length() const
     {
         return evbuffer_get_length(ev_buf_);
+    }
+
+    // Read data from an evbuffer, and leave the buffer unchanged.
+    ev_ssize_t copyOut(void *data_out, size_t datlen, const struct evbuffer_ptr *pos = nullptr)
+    {
+        return evbuffer_copyout_from(ev_buf_, pos, data_out, datlen);
+    }
+
+    int moveToBuffer(struct evbuffer *src, struct evbuffer *dst,
+                     size_t datlen)
+    {
+        return evbuffer_remove(src, dst, datlen);
     }
 
     bool enableLocking(void *locker)
@@ -53,17 +70,6 @@ class Buffer
     evbuffer *buffer() const
     {
         return ev_buf_;
-    }
-
-    int moveToBuffer(struct evbuffer *src, struct evbuffer *dst,
-                     size_t datlen)
-    {
-        return evbuffer_remove(src, dst, datlen);
-    }
-
-    ev_ssize_t copyOut(void *data_out, size_t datlen, const struct evbuffer_ptr *pos = nullptr)
-    {
-        return evbuffer_copyout_from(ev_buf_, pos, data_out, datlen);
     }
 
     bool drain(size_t datlen)
@@ -98,6 +104,16 @@ class Buffer
         return {data, n_read_out};
     }
 
+    std::string retrieveAllAsString()
+    {
+        std::string result;
+        auto len = length();
+        result.resize(len);
+        copyOut((void *)result.c_str(), len);
+        drain(len);
+        return result;
+    }
+
     bool addFile(int fd)
     {
         return evbuffer_add_file(ev_buf_, fd, 0, 0) == 0;
@@ -120,6 +136,7 @@ class Buffer
 
   protected:
     evbuffer *ev_buf_;
+    bool free_on_deconstruct_ = false; // 是否负责管理ev_buf的生命周期
 };
 } // namespace let
 #endif //LET_BUFFER_H

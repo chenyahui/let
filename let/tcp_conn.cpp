@@ -110,7 +110,7 @@ void TcpConnection::setErrorCallback(const ErrorCallback &cb)
     error_cb_ = cb;
 }
 
-Buffer *TcpConnection::inputBuffer()
+Buffer *TcpConnection::inBuffer()
 {
     return in_buf_;
 }

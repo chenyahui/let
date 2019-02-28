@@ -16,7 +16,7 @@ namespace let
 struct ServerOptions
 {
   size_t io_thread_num = 1;     // io线程的个数
-  int read_high_water = -1; // 读的高水位
+  int read_high_water = 0; // 读的高水位
   int read_low_water = 0;   // 读的低水位
 };
 

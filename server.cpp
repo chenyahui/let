@@ -11,18 +11,17 @@ void log(int severity, const char *msg)
 
 int main()
 {
-    event_enable_debug_logging(EVENT_DBG_ALL);
-    event_enable_debug_mode();
-    event_set_log_callback(log);
+    // event_enable_debug_logging(EVENT_DBG_ALL);
+    // event_enable_debug_mode();
+    // event_set_log_callback(log);
 
     ServerOptions options;
 
     TcpServer server(options, IpAddress("0.0.0.0", 8079));
 
     server.setMessageCallback([](TcpConnectionPtr conn) {
-        auto buffer = conn->inputBuffer()->pullUp();
-        std::cout << "hi! " << buffer << "\n";
-        conn->send(buffer);
+        auto msg = conn->inBuffer()->retrieveAllAsString();
+        conn->send(msg);
     });
 
     server.run();

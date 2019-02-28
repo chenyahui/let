@@ -32,7 +32,7 @@ public:
 
   evutil_socket_t getFd();
 
-  Buffer *inputBuffer();
+  Buffer *inBuffer();
 
   Buffer *outBuffer();
 
