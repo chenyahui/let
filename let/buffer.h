@@ -40,6 +40,11 @@ class Buffer
         return evbuffer_get_length(ev_buf_);
     }
 
+    bool empty() const
+    {
+        return length() == 0;
+    }
+
     // Read data from an evbuffer, and leave the buffer unchanged.
     ev_ssize_t copyOut(void *data_out, size_t datlen, const struct evbuffer_ptr *pos = nullptr)
     {
