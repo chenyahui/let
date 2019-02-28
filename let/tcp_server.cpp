@@ -24,10 +24,12 @@ TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
 
 void TcpServer::run()
 {
+    event_loop_thread_pool_.start();
     acceptor_.listen();
 }
 
-void TcpServer::stop(){
+void TcpServer::stop()
+{
     acceptor_.stop();
     event_loop_thread_pool_.stop();
 }
@@ -69,13 +71,19 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     // create bufferevent
     auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
     const auto &ev_loop = ev_loop_thread->getEventLoop();
+
     auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sockfd, BEV_OPT_CLOSE_ON_FREE);
+    if (!buf_ev)
+    {
+        LOG_ERROR << "bufferevent_socket_new error";
+        evutil_closesocket(sockfd);
+        return;
+    }
 
     // 设置高低水位
     bufferevent_setwatermark(buf_ev, EV_READ, options_.read_low_water, options_.read_high_water);
 
     tcp_conn->setBufferEvent(buf_ev);
-    tcp_conn->bindEventLoop((EventLoop *)(&ev_loop));
 }
 
 } // namespace let

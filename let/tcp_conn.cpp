@@ -6,6 +6,7 @@
 #include "tcp_conn.h"
 #include "event_loop.h"
 #include "buffer.h"
+#include "logger.h"
 
 namespace let
 {
@@ -50,6 +51,7 @@ void TcpConnection::send(const void *message, size_t len)
 
 void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 {
+    LOG_INFO << "tcp connnection read callback";   
     auto self = (TcpConnection *)ctx;
 
     self->message_cb_(self->shared_from_this());
@@ -110,11 +112,6 @@ std::any *TcpConnection::getContext()
     return &context_;
 }
 
-void TcpConnection::setBufferEvent(bufferevent *buf_ev)
-{
-    buf_ev_ = buf_ev;
-}
-
 const IpAddress &TcpConnection::getLocalAddr() const
 {
     return local_addr_;
@@ -125,8 +122,11 @@ const IpAddress &TcpConnection::getRemoteAddr() const
     return remote_addr_;
 }
 
-void TcpConnection::bindEventLoop(EventLoop *event_loop)
+void TcpConnection::setBufferEvent(bufferevent *buf_ev)
 {
+    LOG_DEBUG << "tcp connection set bufferevent";
+    buf_ev_ = buf_ev;
+
     in_buf_ = new Buffer(bufferevent_get_input(buf_ev_));
     out_buf_ = new Buffer(bufferevent_get_output(buf_ev_));
 

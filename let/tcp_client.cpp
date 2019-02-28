@@ -52,8 +52,6 @@ void TcpClient::newConnection(evutil_socket_t fd)
 
     auto buf_ev = connector_.getBufferEvent();
     tcp_conn->setBufferEvent(const_cast<bufferevent*>(buf_ev));
-    tcp_conn->bindEventLoop(event_loop_);
-
     // call callback
     connection_cb_(tcp_conn);
 }

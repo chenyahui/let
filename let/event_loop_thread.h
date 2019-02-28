@@ -47,16 +47,19 @@ public:
   explicit EventLoopThreadPool(size_t thread_num)
       : thread_num_(thread_num)
   {
+    
   }
 
   ~EventLoopThreadPool();
 
+  void start();
 
-  void stop();
+  void stop(bool is_clear = false);
 
   EventLoopThread *getNextEventLoopThread();
 
 private:
+  // todo unique_ptr
   std::vector<EventLoopThread *> event_loop_threads_;
   std::size_t next_ = 0;
 
