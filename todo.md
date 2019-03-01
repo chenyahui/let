@@ -7,3 +7,6 @@
 * 超时时间配置
 * 连接可禁用读写
 * watermark
+* 线程安全
+* 任务池 + work-stealing
+* 右值引用

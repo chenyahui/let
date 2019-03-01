@@ -39,31 +39,29 @@ const EventLoop &EventLoopThread::getEventLoop() const
     return event_loop_;
 }
 
-void EventLoopThreadPool::stop(bool is_clear)
+void EventLoopThreadPool::stop()
 {
     for (auto &loop : event_loop_threads_)
     {
         loop->stop();
-        if (is_clear)
-        {
-            delete loop;
-        }
     }
 }
 
 void EventLoopThreadPool::start()
 {
-    stop(true);
+    stop();
+
+    event_loop_threads_.clear();
 
     for (size_t i = 0; i < thread_num_; i++)
     {
-        event_loop_threads_.push_back(new EventLoopThread());
+        event_loop_threads_.push_back(std::make_unique<EventLoopThread>());
     }
 }
 
 EventLoopThreadPool::~EventLoopThreadPool()
 {
-    stop(true);
+    stop();
 }
 
 EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
@@ -73,7 +71,7 @@ EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
         return nullptr;
     }
 
-    auto event_loop_thread = event_loop_threads_[next_];
+    auto event_loop_thread = event_loop_threads_[next_].get();
     next_ = (next_ + 1) % event_loop_threads_.size();
     return event_loop_thread;
 }

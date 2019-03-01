@@ -111,8 +111,12 @@ class Buffer
 
     std::string retrieveAllAsString()
     {
+        return retrieveAsString(length());
+    }
+
+    std::string retrieveAsString(size_t len)
+    {
         std::string result;
-        auto len = length();
         result.resize(len);
         copyOut((void *)result.c_str(), len);
         drain(len);

@@ -54,13 +54,12 @@ public:
 
   void start();
 
-  void stop(bool is_clear = false);
+  void stop();
 
   EventLoopThread *getNextEventLoopThread();
 
 private:
-  // todo unique_ptr
-  std::vector<EventLoopThread *> event_loop_threads_;
+  std::vector<std::unique_ptr<EventLoopThread>> event_loop_threads_;
   std::size_t next_ = 0;
 
   size_t thread_num_ = 0;

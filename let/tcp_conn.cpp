@@ -141,11 +141,6 @@ void TcpConnection::setContext(std::any context)
     context_ = context;
 }
 
-std::any *TcpConnection::getContext()
-{
-    return &context_;
-}
-
 const IpAddress &TcpConnection::getLocalAddr() const
 {
     return local_addr_;

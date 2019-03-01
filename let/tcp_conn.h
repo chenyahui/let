@@ -38,7 +38,11 @@ public:
 
   void setContext(std::any context);
 
-  std::any *getContext();
+  template <class T>
+  T getContext()
+  {
+    return std::any_cast<T>(context_);
+  }
 
   void setMessageCallback(const MessageCallback &);
 
@@ -46,13 +50,13 @@ public:
 
   void setErrorCallback(const ErrorCallback &);
 
-  void setBufferEvent(bufferevent*);
+  void setBufferEvent(bufferevent *);
 
   void bindEventLoop(EventLoop *);
 
-  const IpAddress& getLocalAddr() const;
+  const IpAddress &getLocalAddr() const;
 
-  const IpAddress& getRemoteAddr() const;
+  const IpAddress &getRemoteAddr() const;
 
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
