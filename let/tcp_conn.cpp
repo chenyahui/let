@@ -41,15 +41,10 @@ void TcpConnection::send(std::string_view message)
 
 void TcpConnection::send(const void *message, size_t len)
 {
+    LOG_DEBUG << "开始发送啊:" << message << "#";
     out_buf_->add(message, len);
 
-    bufferevent_setcb(buf_ev_,
-                      nullptr, // 设为null是因为禁止读，但是还想监听到close
-                      writeCallback,
-                      eventCallback,
-                      this);
-
-    bufferevent_enable(buf_ev_, EV_READ | EV_WRITE);
+    changeEvent(EV_WRITE);
 }
 
 void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
@@ -59,6 +54,10 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 
     if (self->message_cb_ && !self->inBuffer()->empty())
     {
+        std::string str;
+        str.resize(self->inBuffer()->length());
+        self->inBuffer()->copyOut((void *)str.c_str(), str.size());
+        LOG_DEBUG << "长度是: " << str.size() << "; 内容是:" << str << "#";
         LOG_DEBUG << "begin call message callback";
         self->message_cb_(self->shared_from_this());
         LOG_DEBUG << "end call message callback";
@@ -67,19 +66,15 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 
 void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
 {
+    LOG_INFO << "tcp connnection write callback called";
     auto conn = (TcpConnection *)ctx;
 
-    bufferevent_setcb(conn->buf_ev_,
-                      readCallback, // 设为null是因为禁止读，但是还想监听到close
-                      writeCallback,
-                      eventCallback,
-                      ctx);
-
-    bufferevent_enable(conn->buf_ev_, EV_READ);
+    conn->changeEvent(EV_READ);
 
     // 如果buffer中被发送完了，则禁用write事件
     if (conn->out_buf_->empty())
     {
+        LOG_INFO << "outbuf is empty, disable EV_WRITE";
         bufferevent_disable(conn->buf_ev_, EV_WRITE);
     }
 }
@@ -149,6 +144,19 @@ const IpAddress &TcpConnection::getRemoteAddr() const
     return remote_addr_;
 }
 
+void TcpConnection::changeEvent(short event)
+{
+    auto read_cb = (event & EV_READ) ? readCallback : nullptr;
+
+    bufferevent_setcb(buf_ev_,
+                      read_cb,
+                      writeCallback,
+                      eventCallback,
+                      this);
+
+    bufferevent_enable(buf_ev_, EV_READ | (event & EV_WRITE));
+}
+
 void TcpConnection::setBufferEvent(bufferevent *buf_ev)
 {
     buf_ev_ = buf_ev;
@@ -156,14 +164,7 @@ void TcpConnection::setBufferEvent(bufferevent *buf_ev)
     in_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
     out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
 
-    bufferevent_setcb(buf_ev_,
-                      readCallback,
-                      writeCallback,
-                      eventCallback,
-                      this);
-
-    bufferevent_enable(buf_ev_, EV_READ);
-    bufferevent_disable(buf_ev_, EV_WRITE);
+    changeEvent(EV_READ | EV_WRITE);
 
     readCallback(buf_ev_, this);
 }

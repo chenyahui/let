@@ -62,8 +62,22 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);
-    tcp_conn->setDisconnectionCallback(disconnection_cb_);
-    tcp_conn->setErrorCallback(error_cb_);
+
+    tcp_conn->setDisconnectionCallback([&](TcpConnectionPtr conn) {
+        if (disconnection_cb_)
+        {
+            disconnection_cb_(conn);
+        }
+        removeConnection(conn);
+    });
+
+    tcp_conn->setErrorCallback([&](TcpConnectionPtr conn, int err_code) {
+        if (error_cb_)
+        {
+            error_cb_(conn, err_code);
+        }
+        removeConnection(conn);
+    });
 
     // create bufferevent
     auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
@@ -86,4 +100,9 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     tcp_conn->setBufferEvent(buf_ev);
 }
 
+void TcpServer::removeConnection(TcpConnectionPtr conn)
+{
+    LOG_DEBUG << "remove connection: " << conn->getRemoteAddr().format();
+    connections_.erase(conn->getFd());
+}
 } // namespace let

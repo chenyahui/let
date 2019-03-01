@@ -58,7 +58,6 @@ public:
 
   const IpAddress &getRemoteAddr() const;
 
-
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 
@@ -66,6 +65,7 @@ private:
 
   static void eventCallback(struct bufferevent *bev, short events, void *ctx);
 
+  void changeEvent(short event);
 
 private:
   IpAddress remote_addr_;

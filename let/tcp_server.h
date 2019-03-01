@@ -39,6 +39,7 @@ public:
 
 private:
   void newConnection(int sockfd, const IpAddress &);
+  void removeConnection(TcpConnectionPtr);
 
 private:
   Acceptor acceptor_;
