@@ -15,9 +15,9 @@ int main()
     // event_enable_debug_mode();
     // event_set_log_callback(log);
 
-    ServerOptions options;
+    EventLoop loop;
 
-    TcpServer server(options, IpAddress("0.0.0.0", 8079));
+    TcpServer server(&loop, 8079);
 
     server.setMessageCallback([](TcpConnectionPtr conn) {
         auto msg = conn->inBuffer()->retrieveAllAsString();

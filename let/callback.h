@@ -8,6 +8,8 @@
 #include <functional>
 #include <memory>
 
+struct event;
+
 namespace let
 {
 class TcpConnection;
@@ -20,6 +22,10 @@ using MessageCallback = std::function<void(TcpConnectionPtr)>;
 
 // conn, errorCode
 using ErrorCallback = std::function<void(TcpConnectionPtr, int)>;
+
+using TimerId = struct event *;
+
+using TimerCallback = std::function<void()>;
 
 } // namespace let
 #endif //LET_CALLBACK_H

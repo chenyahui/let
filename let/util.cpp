@@ -69,4 +69,14 @@ int create_noblocking_socket()
     return sock;
 }
 
+struct timeval timestamp_to_timeval(long interval)
+{
+    struct timeval time_val
+    {
+    };
+    time_val.tv_sec = interval / 1000;
+    time_val.tv_usec = (interval % 1000) * 1000;
+    return time_val;
+}
+
 } // namespace let

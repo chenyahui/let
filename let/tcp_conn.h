@@ -58,12 +58,14 @@ public:
 
   const IpAddress &getRemoteAddr() const;
 
+
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 
   static void writeCallback(struct bufferevent *bev, void *ctx);
 
   static void eventCallback(struct bufferevent *bev, short events, void *ctx);
+
 
 private:
   IpAddress remote_addr_;
@@ -73,8 +75,8 @@ private:
 
   bufferevent *buf_ev_;
 
-  Buffer *in_buf_;
-  Buffer *out_buf_;
+  std::unique_ptr<Buffer> in_buf_;
+  std::unique_ptr<Buffer> out_buf_;
 
   MessageCallback message_cb_;
   DisconnectionCallback disconnection_cb_;

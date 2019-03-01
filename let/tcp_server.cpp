@@ -10,15 +10,9 @@
 
 namespace let
 {
-
-TcpServer::TcpServer(const IpAddress &ip_addr)
-    : TcpServer(ServerOptions(), ip_addr)
-{
-}
-
-TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
+TcpServer::TcpServer(EventLoop *loop, const IpAddress &ip_addr, const ServerOptions &options)
     : options_(options),
-      acceptor_(ip_addr),
+      acceptor_(loop, ip_addr),
       event_loop_thread_pool_(options.io_thread_num)
 {
     acceptor_.setNewConnectionCallback(std::bind(&TcpServer::newConnection,
@@ -30,12 +24,10 @@ TcpServer::TcpServer(const ServerOptions &options, const IpAddress &ip_addr)
 void TcpServer::run()
 {
     event_loop_thread_pool_.start();
-    acceptor_.listen();
 }
 
 void TcpServer::stop()
 {
-    acceptor_.stop();
     event_loop_thread_pool_.stop();
 }
 

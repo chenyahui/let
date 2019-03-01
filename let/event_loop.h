@@ -2,41 +2,41 @@
 #define LET_EVENT_LOOP_H
 
 #include <event.h>
+#include <map>
+#include <memory>
 
 #include "noncopyable.h"
+#include "callback.h"
+
 namespace let
 {
 class EventLoop : NonCopyAble
 {
   public:
-    EventLoop()
-        : ev_base_(event_base_new())
-    {
-    }
+    EventLoop();
 
-    ~EventLoop()
-    {
-        stop();
-        event_base_free(ev_base_);
-    }
+    ~EventLoop();
 
-    void loop()
-    {
-        event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
-    }
+    void loop();
 
-    event_base *getEvBase() const
-    {
-        return ev_base_;
-    }
+    event_base *getEvBase() const;
 
-    void stop()
-    {
-        event_base_loopbreak(ev_base_);
-    }
+    void stop();
+
+    TimerId runEvery(long interval, const TimerCallback &cb);
+
+    TimerId runAfter(long interval, const TimerCallback &cb);
+
+    void cancelTimer(TimerId);
 
   private:
+    static void timerWrapper(int, short, void *);
+
+    TimerId runTimer(long interval, const TimerCallback &cb, bool run_every);
+
     event_base *ev_base_;
+
+    // std::map<TimerId, std::unique_ptr<TimerCallback>> timer_map_;
 };
 } // namespace let
 

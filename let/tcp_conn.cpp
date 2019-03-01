@@ -22,8 +22,6 @@ TcpConnection::TcpConnection(int fd,
 TcpConnection::~TcpConnection()
 {
     bufferevent_free(buf_ev_);
-    delete in_buf_;
-    delete out_buf_;
 }
 
 evutil_socket_t TcpConnection::getFd()
@@ -59,7 +57,7 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
     LOG_INFO << "tcp connnection read callback called";
     auto self = (TcpConnection *)ctx;
 
-    if (self->message_cb_)
+    if (self->message_cb_ && !self->inBuffer()->empty())
     {
         LOG_DEBUG << "begin call message callback";
         self->message_cb_(self->shared_from_this());
@@ -128,12 +126,12 @@ void TcpConnection::setErrorCallback(const ErrorCallback &cb)
 
 Buffer *TcpConnection::inBuffer()
 {
-    return in_buf_;
+    return in_buf_.get();
 }
 
 Buffer *TcpConnection::outBuffer()
 {
-    return out_buf_;
+    return out_buf_.get();
 }
 
 void TcpConnection::setContext(std::any context)
@@ -155,8 +153,8 @@ void TcpConnection::setBufferEvent(bufferevent *buf_ev)
 {
     buf_ev_ = buf_ev;
 
-    in_buf_ = new Buffer(bufferevent_get_input(buf_ev_));
-    out_buf_ = new Buffer(bufferevent_get_output(buf_ev_));
+    in_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
+    out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
 
     bufferevent_setcb(buf_ev_,
                       readCallback,

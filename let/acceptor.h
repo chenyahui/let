@@ -13,6 +13,7 @@
 
 #include "noncopyable.h"
 #include "ip_addr.h"
+#include "event_loop.h"
 
 namespace let
 {
@@ -23,13 +24,10 @@ class Acceptor : NonCopyAble
 public:
   using NewConnectionCallback = std::function<void(evutil_socket_t sockfd, const IpAddress &)>;
 
-  explicit Acceptor(const IpAddress &);
+  explicit Acceptor(EventLoop*, const IpAddress &);
 
   ~Acceptor();
 
-  void listen();
-
-  void stop();
 
   void setNewConnectionCallback(const NewConnectionCallback &callback);
 
@@ -41,7 +39,7 @@ private:
                                     void *ctx);
 
 private:
-  event_base *ev_base_;
+  EventLoop* loop_;
   evconnlistener *listener_;
 
   NewConnectionCallback new_connect_cb_;

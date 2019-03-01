@@ -12,8 +12,8 @@
 namespace let
 {
 
-Acceptor::Acceptor(const IpAddress &ip_addr)
-    : ev_base_(event_base_new())
+Acceptor::Acceptor(EventLoop* loop, const IpAddress &ip_addr)
+    : loop_(loop)
 {
 
     auto listen_on_addr = ip_addr.getSockAddr();
@@ -22,7 +22,7 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
 
     int sock_len = ip_addr.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
 
-    listener_ = evconnlistener_new_bind(ev_base_,
+    listener_ = evconnlistener_new_bind(loop_->getEvBase(),
                                         handleAccept,
                                         this,
                                         LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
@@ -37,19 +37,7 @@ Acceptor::Acceptor(const IpAddress &ip_addr)
 
 Acceptor::~Acceptor()
 {
-    stop();
     evconnlistener_free(listener_);
-    event_base_free(ev_base_);
-}
-
-void Acceptor::listen()
-{
-    event_base_loop(ev_base_, 0);
-}
-
-void Acceptor::stop()
-{
-    event_base_loopbreak(ev_base_);
 }
 
 void Acceptor::handleAccept(struct evconnlistener *listener,

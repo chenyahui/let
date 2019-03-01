@@ -12,6 +12,7 @@ add_library(
         connector.cpp
         event_loop_thread.h
         event_loop_thread.cpp
+        event_loop.cpp
         event_loop.h
         logger.h
         logger.cpp

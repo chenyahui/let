@@ -10,3 +10,5 @@
 * 线程安全
 * 任务池 + work-stealing
 * 右值引用
+* tcp_conn更优雅的context解决方案
+* 封装libevent的timer

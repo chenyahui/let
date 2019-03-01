@@ -23,9 +23,7 @@ struct ServerOptions
 class TcpServer
 {
 public:
-  TcpServer(const ServerOptions &options, const IpAddress &ip_addr);
-
-  TcpServer(const IpAddress &ip_addr);
+  TcpServer(EventLoop*, const IpAddress &ip_addr, const ServerOptions &options = ServerOptions());
 
   void run();
 
