@@ -50,9 +50,7 @@ public:
 
   void setErrorCallback(const ErrorCallback &);
 
-  void setBufferEvent(bufferevent *);
-
-  void bindEventLoop(EventLoop *);
+  void bindBufferEvent(bufferevent *);
 
   const IpAddress &getLocalAddr() const;
 

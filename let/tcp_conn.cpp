@@ -3,6 +3,7 @@
 //
 
 #include <event2/event.h>
+
 #include "tcp_conn.h"
 #include "event_loop.h"
 #include "buffer.h"
@@ -21,6 +22,7 @@ TcpConnection::TcpConnection(int fd,
 
 TcpConnection::~TcpConnection()
 {
+    LOG_DEBUG << "tcp connection release";
     bufferevent_free(buf_ev_);
 }
 
@@ -52,11 +54,11 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
     LOG_INFO << "tcp connnection read callback called";
     auto self = (TcpConnection *)ctx;
 
-    if (self->message_cb_ && !self->inBuffer()->empty())
+    if (self->message_cb_ && !self->in_buf_->empty())
     {
         std::string str;
-        str.resize(self->inBuffer()->length());
-        self->inBuffer()->copyOut((void *)str.c_str(), str.size());
+        str.resize(self->in_buf_->length());
+        self->in_buf_->copyOut((void *)str.c_str(), str.size());
         LOG_DEBUG << "长度是: " << str.size() << "; 内容是:" << str << "#";
         LOG_DEBUG << "begin call message callback";
         self->message_cb_(self->shared_from_this());
@@ -69,7 +71,7 @@ void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
     LOG_INFO << "tcp connnection write callback called";
     auto conn = (TcpConnection *)ctx;
 
-    conn->changeEvent(EV_READ);
+    conn->changeEvent(EV_READ | EV_WRITE);
 
     // 如果buffer中被发送完了，则禁用write事件
     if (conn->out_buf_->empty())
@@ -101,6 +103,10 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
         {
             self->error_cb_(self->shared_from_this(), EVUTIL_SOCKET_ERROR());
         }
+    }
+    else
+    {
+        LOG_INFO << "tcp connnection event callback called";
     }
 }
 
@@ -143,10 +149,10 @@ const IpAddress &TcpConnection::getRemoteAddr() const
 {
     return remote_addr_;
 }
-
+// 如果包含EV_READ，则
 void TcpConnection::changeEvent(short event)
 {
-    auto read_cb = (event & EV_READ) ? readCallback : nullptr;
+    auto read_cb = (event & EV_READ) == 0 ? nullptr : readCallback;
 
     bufferevent_setcb(buf_ev_,
                       read_cb,
@@ -154,17 +160,26 @@ void TcpConnection::changeEvent(short event)
                       eventCallback,
                       this);
 
-    bufferevent_enable(buf_ev_, EV_READ | (event & EV_WRITE));
+    bufferevent_enable(buf_ev_, EV_READ);
+
+    if ((event & EV_WRITE) == 0)
+    {
+        bufferevent_disable(buf_ev_, EV_WRITE);
+    }
+    else
+    {
+        bufferevent_enable(buf_ev_, EV_READ);
+    }
 }
 
-void TcpConnection::setBufferEvent(bufferevent *buf_ev)
+void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
 {
     buf_ev_ = buf_ev;
 
     in_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
     out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
 
-    changeEvent(EV_READ | EV_WRITE);
+    changeEvent(EV_READ);
 
     readCallback(buf_ev_, this);
 }

@@ -97,7 +97,7 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
                              options_.read_low_water,
                              options_.read_high_water);
 
-    tcp_conn->setBufferEvent(buf_ev);
+    tcp_conn->bindBufferEvent(buf_ev);
 }
 
 void TcpServer::removeConnection(TcpConnectionPtr conn)

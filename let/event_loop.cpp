@@ -2,6 +2,7 @@
 
 #include "event_loop.h"
 #include "util.h"
+#include "logger.h"
 
 namespace let
 {
@@ -12,12 +13,14 @@ EventLoop::EventLoop()
 
 EventLoop::~EventLoop()
 {
+
     stop();
     event_base_free(ev_base_);
 }
 
 void EventLoop::loop()
 {
+    LOG_DEBUG << "start event loop";
     event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
 }
 
@@ -28,6 +31,7 @@ event_base *EventLoop::getEvBase() const
 
 void EventLoop::stop()
 {
+    LOG_DEBUG << "end event loop";
     event_base_loopbreak(ev_base_);
 }
 
