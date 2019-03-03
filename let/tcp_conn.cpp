@@ -43,9 +43,7 @@ void TcpConnection::send(std::string_view message)
 
 void TcpConnection::send(const void *message, size_t len)
 {
-    LOG_DEBUG << "开始发送啊:" << message << "#";
     out_buf_->add(message, len);
-
     changeEvent(EV_WRITE);
 }
 
@@ -152,7 +150,7 @@ const IpAddress &TcpConnection::getRemoteAddr() const
 // 如果包含EV_READ，则
 void TcpConnection::changeEvent(short event)
 {
-    auto read_cb = (event & EV_READ) == 0 ? nullptr : readCallback;
+    auto read_cb = !(event & EV_READ)? nullptr : readCallback;
 
     bufferevent_setcb(buf_ev_,
                       read_cb,
@@ -160,15 +158,11 @@ void TcpConnection::changeEvent(short event)
                       eventCallback,
                       this);
 
-    bufferevent_enable(buf_ev_, EV_READ);
+    bufferevent_enable(buf_ev_, EV_READ | event);
 
-    if ((event & EV_WRITE) == 0)
+    if (!(event & EV_WRITE))
     {
         bufferevent_disable(buf_ev_, EV_WRITE);
-    }
-    else
-    {
-        bufferevent_enable(buf_ev_, EV_READ);
     }
 }
 
@@ -181,7 +175,9 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
 
     changeEvent(EV_READ);
 
-    readCallback(buf_ev_, this);
+    // readCallback(buf_ev_, this);
+
+    send("I am let framework");
 }
 
 } // namespace let

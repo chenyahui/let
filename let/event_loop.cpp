@@ -87,4 +87,16 @@ void EventLoop::timerWrapper(int, short event, void *args)
     }
 }
 
+void EventLoop::onSingal(short sig, const SingalCallback &)
+{
+    auto sig_ev = evsignal_new(ev_base_, sig, singalWrapper, nullptr);
+
+    event_add(sig_ev, NULL);
+}
+
+void EventLoop::singalWrapper(int, short, void *)
+{
+    
+}
+
 } // namespace let

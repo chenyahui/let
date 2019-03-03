@@ -11,9 +11,9 @@ void log(int severity, const char *msg)
 
 int main()
 {
-    event_enable_debug_logging(EVENT_DBG_ALL);
-    event_enable_debug_mode();
-    event_set_log_callback(log);
+    // event_enable_debug_logging(EVENT_DBG_ALL);
+    // event_enable_debug_mode();
+    // event_set_log_callback(log);
 
     EventLoop loop;
 

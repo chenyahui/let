@@ -29,8 +29,12 @@ class EventLoop : NonCopyAble
 
     void cancelTimer(TimerId);
 
+    void onSingal(short sig, const SingalCallback&);
+
   private:
     static void timerWrapper(int, short, void *);
+
+    static void singalWrapper(int, short, void *);
 
     TimerId runTimer(long interval, const TimerCallback &cb, bool run_every);
 

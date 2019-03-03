@@ -27,5 +27,8 @@ using TimerId = struct event *;
 
 using TimerCallback = std::function<void()>;
 
+using SingalCallback = std::function<void()>;
+
+
 } // namespace let
 #endif //LET_CALLBACK_H

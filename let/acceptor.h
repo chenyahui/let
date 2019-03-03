@@ -28,6 +28,7 @@ public:
 
   ~Acceptor();
 
+  void listen();
 
   void setNewConnectionCallback(const NewConnectionCallback &callback);
 

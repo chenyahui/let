@@ -12,3 +12,5 @@
 * 右值引用
 * tcp_conn更优雅的context解决方案
 * 封装libevent的timer
+* channel的概念
+* 连接健康检查

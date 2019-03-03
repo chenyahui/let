@@ -12,20 +12,20 @@
 namespace let
 {
 
-Acceptor::Acceptor(EventLoop* loop, const IpAddress &ip_addr)
+Acceptor::Acceptor(EventLoop *loop, const IpAddress &ip_addr)
     : loop_(loop)
 {
 
     auto listen_on_addr = ip_addr.getSockAddr();
 
-    LOG_DEBUG << "ip addr is ipv6: " << ip_addr.isIpv6() << ", " << ip_addr.format();
-
     int sock_len = ip_addr.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
+
+    auto flags = LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE | LEV_OPT_DISABLED;
 
     listener_ = evconnlistener_new_bind(loop_->getEvBase(),
                                         handleAccept,
                                         this,
-                                        LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE,
+                                        flags,
                                         -1,
                                         listen_on_addr,
                                         sock_len);
@@ -33,11 +33,18 @@ Acceptor::Acceptor(EventLoop* loop, const IpAddress &ip_addr)
     {
         LOG_FATAL << "couldn't open listener! errno[" << errno << "]: " << strerror(errno);
     }
+
+    LOG_DEBUG << "start listen on: " << ip_addr.format();
 }
 
 Acceptor::~Acceptor()
 {
     evconnlistener_free(listener_);
+}
+
+void Acceptor::listen()
+{
+    evconnlistener_enable(listener_);
 }
 
 void Acceptor::handleAccept(struct evconnlistener *listener,
@@ -52,7 +59,7 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
         LOG_ERROR << "not an acceptor, fd : " << fd;
         return;
     }
-    
+
     IpAddress ip_addr(address);
 
     LOG_INFO << "accept new connection: " << ip_addr.format() << ", fd is " << fd;

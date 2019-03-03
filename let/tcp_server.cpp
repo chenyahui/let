@@ -24,6 +24,7 @@ TcpServer::TcpServer(EventLoop *loop, const IpAddress &ip_addr, const ServerOpti
 void TcpServer::run()
 {
     event_loop_thread_pool_.start();
+    acceptor_.listen();
 }
 
 void TcpServer::stop()
