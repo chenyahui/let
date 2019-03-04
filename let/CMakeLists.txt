@@ -16,8 +16,8 @@ add_library(
         event_loop.h
         logger.h
         logger.cpp
-        util.h
-        util.cpp
+        utility.h
+        utility.cpp
         buffer.h
         callback.h
         ip_addr.h

@@ -9,7 +9,7 @@
 #include <event2/util.h>
 
 #include "logger.h"
-#include "util.h"
+#include "utility.h"
 
 namespace let
 {

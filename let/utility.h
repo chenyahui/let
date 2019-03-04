@@ -2,8 +2,8 @@
 // Created by yahuichen on 2019/1/23.
 //
 
-#ifndef LET_UTIL_H
-#define LET_UTIL_H
+#ifndef LET_UTILITY_H
+#define LET_UTILITY_H
 
 #include <string>
 
@@ -25,4 +25,4 @@ int64_t get_monotonic_timestamp();
 int64_t get_wall_clock_timestamp();
 
 } // namespace let
-#endif //LET_UTIL_H
+#endif //LET_UTILITY_H

@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 #include "logger.h"
-#include "util.h"
+#include "utility.h"
 
 namespace let
 {

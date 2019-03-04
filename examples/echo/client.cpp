@@ -13,10 +13,14 @@ int main()
     auto client = TcpClient(&loop, addr);
 
     client.setConnectionCallback([](TcpConnectionPtr conn) {
-        std::cout << "已连接";
-        conn->send("hello");
+       conn->send("hello");
     });
-    
+
+    client.setMessageCallback([](TcpConnectionPtr conn){
+        auto msg = conn->inBuffer()->retrieveAllAsString();
+        std::cout << msg << std::endl;
+    });
+
     client.connect();
 
     loop.loop();
