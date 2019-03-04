@@ -11,6 +11,12 @@
 #include "logger.h"
 #include "utility.h"
 
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
+
 namespace let
 {
 std::string format_time(time_t rawtime, const std::string &format)
