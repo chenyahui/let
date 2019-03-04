@@ -1,7 +1,3 @@
-//
-// Created by yahuichen on 2019/1/23.
-//
-
 #include "tcp_client.h"
 #include "tcp_conn.h"
 #include "utility.h"
@@ -13,6 +9,7 @@ TcpClient::TcpClient(EventLoop *event_loop, const IpAddress &remote_addr)
       remote_addr_(remote_addr),
       connector_(event_loop, remote_addr)
 {
+    connector_.setNewConnectionCallback(std::bind(&TcpClient::newConnection, this, std::placeholders::_1));
 }
 
 void TcpClient::setMessageCallback(const MessageCallback &cb)
@@ -52,10 +49,12 @@ void TcpClient::newConnection(evutil_socket_t fd)
 
     auto buf_ev = connector_.getBufferEvent();
 
-    tcp_conn->bindBufferEvent(const_cast<bufferevent*>(buf_ev));
-    
+    tcp_conn->bindBufferEvent(const_cast<bufferevent *>(buf_ev));
+
     // call callback
     connection_cb_(tcp_conn);
+
+    conn_ = tcp_conn;
 }
 
 } // namespace let

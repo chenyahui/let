@@ -1,6 +1,7 @@
 #include <let/tcp_client.h>
 #include <let/callback.h>
 #include <let/tcp_conn.h>
+#include <let/logger.h>
 
 #include <iostream>
 
@@ -13,16 +14,16 @@ int main()
     auto client = TcpClient(&loop, addr);
 
     client.setConnectionCallback([](TcpConnectionPtr conn) {
-       conn->send("hello");
+        LOG_DEBUG << "连接成功";
+        conn->send("hello");
     });
 
-    client.setMessageCallback([](TcpConnectionPtr conn){
+    client.setMessageCallback([](TcpConnectionPtr conn) {
         auto msg = conn->inBuffer()->retrieveAllAsString();
         std::cout << msg << std::endl;
     });
 
     client.connect();
-
     loop.loop();
 
     return 0;

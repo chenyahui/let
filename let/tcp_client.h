@@ -45,7 +45,8 @@ private:
   ConnectionCallback connection_cb_;
   DisconnectionCallback disconnection_cb_;
   ErrorCallback error_cb_;
-
+  
+  TcpConnectionPtr conn_;
 };
 } // namespace let
 #endif //LET_TCP_CLIENT_H
