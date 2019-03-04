@@ -8,7 +8,8 @@
 namespace let
 {
 IpAddress::IpAddress(int port)
-    : port_(port)
+    : port_(port),
+      ip_("0.0.0.0")
 {
     addr_.sin_family = AF_INET;
     addr_.sin_addr.s_addr = INADDR_ANY;
@@ -42,7 +43,7 @@ IpAddress::IpAddress(const struct sockaddr *sa)
     const char *res = NULL;
 
     is_ipv6_ = sa->sa_family == AF_INET6;
-    
+
     if (sa->sa_family == AF_INET)
     {
         const struct sockaddr_in *sin = (const struct sockaddr_in *)sa;

@@ -21,6 +21,7 @@ int main()
 
     server.setMessageCallback([](TcpConnectionPtr conn) {
         auto msg = conn->inBuffer()->retrieveAllAsString();
+        LOG_DEBUG << "收到了msg: " << msg << "#";
         conn->send(msg);
     });
 

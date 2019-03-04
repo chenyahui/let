@@ -31,19 +31,17 @@ evutil_socket_t TcpConnection::getFd()
     return bufferevent_getfd(buf_ev_);
 }
 
-// void TcpConnection::send(const std::string &message)
-// {
-//     send(message.c_str(), message.size());
-// }
-
-void TcpConnection::send(std::string_view message)
+void TcpConnection::send(const std::string &message)
 {
-    send(message.data(), message.size());
+    send(message.c_str(), message.size());
 }
 
 void TcpConnection::send(const void *message, size_t len)
 {
-    out_buf_->add(message, len);
+    if(!out_buf_->add(message, len)){
+        LOG_ERROR << "outbuffer add message error";
+        return;
+    }
     changeEvent(EV_WRITE);
 }
 
@@ -147,7 +145,7 @@ const IpAddress &TcpConnection::getRemoteAddr() const
 {
     return remote_addr_;
 }
-// 如果包含EV_READ，则
+
 void TcpConnection::changeEvent(short event)
 {
     auto read_cb = !(event & EV_READ)? nullptr : readCallback;
@@ -171,13 +169,11 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
     buf_ev_ = buf_ev;
 
     in_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
-    out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
+    out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_output(buf_ev_)));
 
     changeEvent(EV_READ);
 
-    // readCallback(buf_ev_, this);
-
-    send("I am let framework");
+    readCallback(buf_ev_, this);
 }
 
 } // namespace let

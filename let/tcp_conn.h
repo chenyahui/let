@@ -28,7 +28,7 @@ public:
   ~TcpConnection();
 
   void send(const void *message, size_t len);
-  void send(std::string_view message);
+  void send(const std::string & message);
 
   evutil_socket_t getFd();
 
