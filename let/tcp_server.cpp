@@ -55,6 +55,16 @@ void TcpServer::setErrorCallback(const ErrorCallback &cb)
 void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
 {
     LOG_INFO << "tcp server get new connection, " << ip_addr.format();
+
+    if (options_.max_connections > 0 && connections_.size() >= options_.max_connections)
+    {
+        LOG_ERROR << "tcp server has max connections: " << options_.max_connections
+                  << ", and reject the connection: " << ip_addr.format();
+        
+        evutil_closesocket(sockfd);
+        return;
+    }
+
     auto local_addr = IpAddress(get_local_addr(sockfd));
 
     auto tcp_conn = std::make_shared<TcpConnection>(sockfd, local_addr, ip_addr);
@@ -93,10 +103,10 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     }
 
     // 设置高低水位
-    // bufferevent_setwatermark(buf_ev,
-    //                          EV_READ,
-    //                          options_.read_low_water,
-    //                          options_.read_high_water);
+    bufferevent_setwatermark(buf_ev,
+                             EV_READ,
+                             options_.read_low_water,
+                             options_.read_high_water);
 
     tcp_conn->bindBufferEvent(buf_ev);
 }

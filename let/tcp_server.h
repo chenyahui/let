@@ -16,8 +16,10 @@ namespace let
 struct ServerOptions
 {
   size_t io_thread_num = 1;     // io线程的个数
-  int read_high_water = 0; // 读的高水位
-  int read_low_water = 0;   // 读的低水位
+  size_t read_high_water = 0; // 读的高水位
+  size_t read_low_water = 0;   // 读的低水位
+
+  size_t max_connections = 0; // 最大连接数, 0代表不限制连接数
 };
 
 class TcpServer

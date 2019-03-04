@@ -25,12 +25,6 @@ set(CXX_FLAGS
         
 add_subdirectory(let)
 
-include_directories(./)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# server
-add_executable(let_test_server server.cpp)
-target_link_libraries(let_test_server let)
-
-# client
-add_executable(let_test_client client.cpp)
-target_link_libraries(let_test_client let)
+add_subdirectory(examples)
