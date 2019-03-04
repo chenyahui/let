@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <any>
+#include <atomic>
 
 #include "callback.h"
 #include "ip_addr.h"
@@ -28,7 +29,7 @@ public:
   ~TcpConnection();
 
   void send(const void *message, size_t len);
-  void send(const std::string & message);
+  void send(const std::string &message);
 
   evutil_socket_t getFd();
 
@@ -38,11 +39,9 @@ public:
 
   void setContext(std::any context);
 
-  template <class T>
-  T getContext()
-  {
-    return std::any_cast<T>(context_);
-  }
+  const std::any &getContext() const;
+
+  std::any *getMutableContext();
 
   void setMessageCallback(const MessageCallback &);
 
@@ -55,6 +54,8 @@ public:
   const IpAddress &getLocalAddr() const;
 
   const IpAddress &getRemoteAddr() const;
+
+  int64_t getLastActiveTime() const;
 
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
@@ -81,6 +82,9 @@ private:
   ErrorCallback error_cb_;
 
   std::any context_;
+
+  std::atomic<int64_t> last_readtime_ms_; // ms
+  std::atomic<int64_t> last_writetime_ms_; // ms
 };
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

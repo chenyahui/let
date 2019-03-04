@@ -79,4 +79,60 @@ struct timeval timestamp_to_timeval(long interval)
     return time_val;
 }
 
+int64_t get_monotonic_timestamp()
+{
+#if HAVE_CLOCK_GETTIME
+    struct timespec tp;
+    if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0) {
+        return (int64_t)(1000000000LL * tp.tv_sec + tp.tv_nsec);
+    }
+#elif defined(__MACH__)
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    if (host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock) == KERN_SUCCESS) {
+        if (clock_get_time(cclock, &mts) == KERN_SUCCESS) {
+            mach_port_deallocate(mach_task_self(), cclock);
+            return (int64_t)(1000000000LL * mts.tv_sec + mts.tv_nsec);
+        }
+        mach_port_deallocate(mach_task_self(), cclock);
+    }
+#endif /* HAVE_CLOCK_GETTIME */
+
+    /* Oh my god, use wall clock instead. */
+    return get_wall_clock_timestamp();
+}
+
+int64_t get_wall_clock_timestamp()
+{
+    time_t t;
+    struct timeval tv;
+
+#if HAVE_CLOCK_GETTIME
+    struct timespec tp;
+    if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
+        return 1000000000LL * tp.tv_sec + tp.tv_nsec;
+    }
+#elif defined(__MACH__)
+    clock_serv_t cclock;
+    if (host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock) == KERN_SUCCESS) {
+        mach_timespec_t mts;
+        if (clock_get_time(cclock, &mts) == 0) {
+            mach_port_deallocate(mach_task_self(), cclock);
+            return (int64_t)(1000000000LL * mts.tv_sec + mts.tv_nsec);
+        }
+        mach_port_deallocate(mach_task_self(), cclock);
+    }
+#endif
+
+    if (gettimeofday(&tv, NULL) == 0) {
+        return (int64_t)(1000000000LL * tv.tv_sec + 1000LL * tv.tv_usec);
+    }
+
+    if ((t = time(NULL)) >= 0) {
+        return (int64_t)(1000000000LL * t);
+    }
+
+    return -1;
+}
+
 } // namespace let

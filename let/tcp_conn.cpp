@@ -8,6 +8,7 @@
 #include "event_loop.h"
 #include "buffer.h"
 #include "logger.h"
+#include "util.h"
 
 namespace let
 {
@@ -38,7 +39,8 @@ void TcpConnection::send(const std::string &message)
 
 void TcpConnection::send(const void *message, size_t len)
 {
-    if(!out_buf_->add(message, len)){
+    if (!out_buf_->add(message, len))
+    {
         LOG_ERROR << "outbuffer add message error";
         return;
     }
@@ -49,6 +51,8 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 {
     LOG_INFO << "tcp connnection read callback called";
     auto self = (TcpConnection *)ctx;
+
+    self->last_readtime_ms_ = get_monotonic_timestamp() / 1000;
 
     if (self->message_cb_ && !self->in_buf_->empty())
     {
@@ -65,15 +69,17 @@ void TcpConnection::readCallback(struct bufferevent *bev, void *ctx)
 void TcpConnection::writeCallback(struct bufferevent *bev, void *ctx)
 {
     LOG_INFO << "tcp connnection write callback called";
-    auto conn = (TcpConnection *)ctx;
+    auto self = (TcpConnection *)ctx;
 
-    conn->changeEvent(EV_READ | EV_WRITE);
+    self->last_writetime_ms_ = get_monotonic_timestamp() / 1000;
+
+    self->changeEvent(EV_READ | EV_WRITE);
 
     // 如果buffer中被发送完了，则禁用write事件
-    if (conn->out_buf_->empty())
+    if (self->out_buf_->empty())
     {
         LOG_INFO << "outbuf is empty, disable EV_WRITE";
-        bufferevent_disable(conn->buf_ev_, EV_WRITE);
+        bufferevent_disable(self->buf_ev_, EV_WRITE);
     }
 }
 
@@ -148,7 +154,7 @@ const IpAddress &TcpConnection::getRemoteAddr() const
 
 void TcpConnection::changeEvent(short event)
 {
-    auto read_cb = !(event & EV_READ)? nullptr : readCallback;
+    auto read_cb = !(event & EV_READ) ? nullptr : readCallback;
 
     bufferevent_setcb(buf_ev_,
                       read_cb,
@@ -176,4 +182,18 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
     readCallback(buf_ev_, this);
 }
 
+std::any *TcpConnection::getMutableContext()
+{
+    return &context_;
+}
+
+const std::any &TcpConnection::getContext() const
+{
+    return context_;
+}
+
+int64_t TcpConnection::getLastActiveTime() const
+{
+    return std::max(last_readtime_ms_, last_writetime_ms_);
+}
 } // namespace let

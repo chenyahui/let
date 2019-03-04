@@ -47,6 +47,11 @@ void Acceptor::listen()
     evconnlistener_enable(listener_);
 }
 
+void Acceptor::stop()
+{
+    evconnlistener_disable(listener_);
+}
+
 void Acceptor::handleAccept(struct evconnlistener *listener,
                             evutil_socket_t fd,
                             struct sockaddr *address,

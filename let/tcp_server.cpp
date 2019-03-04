@@ -11,7 +11,8 @@
 namespace let
 {
 TcpServer::TcpServer(EventLoop *loop, const IpAddress &ip_addr, const ServerOptions &options)
-    : options_(options),
+    : loop_(loop),
+      options_(options),
       acceptor_(loop, ip_addr),
       event_loop_thread_pool_(options.io_thread_num)
 {
@@ -25,11 +26,20 @@ void TcpServer::run()
 {
     event_loop_thread_pool_.start();
     acceptor_.listen();
+
+    // 如果开启了闲置连接检查，则注册timer
+    if (options_.idle_timeout_sec > 0)
+    {
+        loop_->runEvery(1000, std::bind(&TcpServer::checkIdleConnections, this));
+    }
 }
 
 void TcpServer::stop()
 {
+    acceptor_.stop();
     event_loop_thread_pool_.stop();
+
+    // todo stop timer
 }
 
 void TcpServer::setMessageCallback(const MessageCallback &cb)
@@ -60,7 +70,7 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     {
         LOG_ERROR << "tcp server has max connections: " << options_.max_connections
                   << ", and reject the connection: " << ip_addr.format();
-        
+
         evutil_closesocket(sockfd);
         return;
     }
@@ -115,5 +125,18 @@ void TcpServer::removeConnection(TcpConnectionPtr conn)
 {
     LOG_DEBUG << "remove connection: " << conn->getRemoteAddr().format();
     connections_.erase(conn->getFd());
+}
+
+// 定时检查闲置连接
+void TcpServer::checkIdleConnections()
+{
+    auto expire = (get_monotonic_timestamp() / 1000) - (options_.idle_timeout_sec * 1000);
+    for (auto &c : connections_)
+    {
+        if (c.second->getLastActiveTime() < expire)
+        {
+            connections_.erase(c.first);
+        }
+    }
 }
 } // namespace let

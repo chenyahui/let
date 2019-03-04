@@ -51,9 +51,7 @@ TimerId EventLoop::runTimer(long interval, const TimerCallback &cb, bool run_eve
     auto timer_ev = new event;
     memset(timer_ev, 0, sizeof(struct event));
 
-    auto timeFunc = new TimerCallback([&]() {
-        cb();
-    });
+    auto timeFunc = new TimerCallback(cb);
 
     short flags = static_cast<short>(run_every ? EV_PERSIST : 0);
 
@@ -85,18 +83,6 @@ void EventLoop::timerWrapper(int, short event, void *args)
     {
         delete func;
     }
-}
-
-void EventLoop::onSingal(short sig, const SingalCallback &)
-{
-    auto sig_ev = evsignal_new(ev_base_, sig, singalWrapper, nullptr);
-
-    event_add(sig_ev, NULL);
-}
-
-void EventLoop::singalWrapper(int, short, void *)
-{
-    
 }
 
 } // namespace let

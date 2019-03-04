@@ -30,6 +30,8 @@ public:
 
   void listen();
 
+  void stop();
+
   void setNewConnectionCallback(const NewConnectionCallback &callback);
 
 private:

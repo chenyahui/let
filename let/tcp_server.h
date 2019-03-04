@@ -16,10 +16,13 @@ namespace let
 struct ServerOptions
 {
   size_t io_thread_num = 1;     // io线程的个数
+
   size_t read_high_water = 0; // 读的高水位
   size_t read_low_water = 0;   // 读的低水位
 
   size_t max_connections = 0; // 最大连接数, 0代表不限制连接数
+
+  size_t idle_timeout_sec = 0; // 单位 s，如果在设定时间内该连接没有读写，则关闭该连接。为0则不开启
 };
 
 class TcpServer
@@ -41,9 +44,13 @@ public:
 
 private:
   void newConnection(int sockfd, const IpAddress &);
+
   void removeConnection(TcpConnectionPtr);
 
+  void checkIdleConnections();
+
 private:
+  EventLoop* loop_;
   Acceptor acceptor_;
   EventLoopThreadPool event_loop_thread_pool_;
   ServerOptions options_;
