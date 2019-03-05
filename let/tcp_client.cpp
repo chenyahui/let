@@ -54,6 +54,7 @@ void TcpClient::newConnection(evutil_socket_t fd)
     // call callback
     connection_cb_(tcp_conn);
 
+    // hold the connection
     conn_ = tcp_conn;
 }
 
