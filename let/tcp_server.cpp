@@ -100,6 +100,12 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
         removeConnection(conn);
     });
 
+    if (connection_cb_)
+    {
+        LOG_INFO << "connection callback called~";
+        connection_cb_(tcp_conn);
+    }
+
     // create bufferevent
     auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
     const auto &ev_loop = ev_loop_thread->getEventLoop();

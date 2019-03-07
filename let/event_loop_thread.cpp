@@ -24,13 +24,15 @@ EventLoopThread::~EventLoopThread()
 
 void EventLoopThread::stop()
 {
-    event_loop_.stop();
+    LOG_DEBUG << "io thread stop";
 
+    event_loop_.stop();
     thread_.join();
 }
 
 void EventLoopThread::threadFunc()
 {
+    LOG_DEBUG << "io thread start loop";
     event_loop_.loop();
 }
 
