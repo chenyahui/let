@@ -1,0 +1,12 @@
+language: cpp
+sudo: required
+install:
+  - sudo apt install libevent-dev
+compiler:
+  - gcc
+  - clang
+script:
+  - ./build.sh
+env:
+  - BUILD_TYPE=debug
+  - BUILD_TYPE=release
