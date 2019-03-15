@@ -118,6 +118,7 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
         return;
     }
 
+
     // 设置高低水位
     bufferevent_setwatermark(buf_ev,
                              EV_READ,

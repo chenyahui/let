@@ -23,6 +23,7 @@ add_library(
         ip_addr.h
         ip_addr.cpp
         pool.h
+        channel.h
 )
 
 target_link_libraries(let event pthread)

@@ -34,6 +34,8 @@ public:
 
   void stop();
 
+  void gracefulStop();
+
   void setMessageCallback(const MessageCallback &);
 
   void setConnectionCallback(const ConnectionCallback &);
