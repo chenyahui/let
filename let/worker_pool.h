@@ -77,10 +77,14 @@ class WorkerPool
     {
     }
 
-    void post(const Job& job)
+    void post(const Job &job)
     {
         workers_[current_worker_]->postJob(job);
-        
+    }
+
+    void post(Job &&job)
+    {
+        workers_[current_worker_]->postJob(job);
     }
 
   public:

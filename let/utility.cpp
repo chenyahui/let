@@ -2,12 +2,13 @@
 // Created by yahuichen on 2019/1/23.
 //
 
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <strings.h> // bzero
 #include <arpa/inet.h>
-#include <event2/util.h>
+#include <sys/socket.h>
+#include <netinet/tcp.h>
+#include <netinet/in.h>
 
+#include <event2/util.h>
 #include "logger.h"
 #include "utility.h"
 
@@ -139,6 +140,11 @@ int64_t get_wall_clock_timestamp()
     }
 
     return -1;
+}
+
+void set_tcp_nodelay(int fd) {
+    int enable = 1;
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void*)&enable,sizeof(enable));
 }
 
 } // namespace let

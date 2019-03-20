@@ -62,7 +62,7 @@ void TcpServer::setErrorCallback(const ErrorCallback &cb)
     error_cb_ = cb;
 }
 
-void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
+void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
 {
     LOG_INFO << "tcp server get new connection, " << ip_addr.format();
 
@@ -71,15 +71,19 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
         LOG_ERROR << "tcp server has max connections: " << options_.max_connections
                   << ", and reject the connection: " << ip_addr.format();
 
-        evutil_closesocket(sockfd);
+        evutil_closesocket(sock_fd);
         return;
     }
 
-    auto local_addr = IpAddress(get_local_addr(sockfd));
+    if(options_.tcp_no_delay){
+        set_tcp_nodelay(sock_fd);
+    }
 
-    auto tcp_conn = std::make_shared<TcpConnection>(sockfd, local_addr, ip_addr);
+    auto local_addr = IpAddress(get_local_addr(sock_fd));
 
-    connections_[sockfd] = tcp_conn;
+    auto tcp_conn = std::make_shared<TcpConnection>(sock_fd, local_addr, ip_addr);
+
+    connections_[sock_fd] = tcp_conn;
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);
@@ -110,14 +114,13 @@ void TcpServer::newConnection(evutil_socket_t sockfd, const IpAddress &ip_addr)
     auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
     const auto &ev_loop = ev_loop_thread->getEventLoop();
 
-    auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sockfd, BEV_OPT_CLOSE_ON_FREE);
+    auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sock_fd, BEV_OPT_CLOSE_ON_FREE);
     if (!buf_ev)
     {
         LOG_ERROR << "bufferevent_socket_new error";
-        evutil_closesocket(sockfd);
+        evutil_closesocket(sock_fd);
         return;
     }
-
 
     // 设置高低水位
     bufferevent_setwatermark(buf_ev,
