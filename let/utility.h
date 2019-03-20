@@ -20,7 +20,7 @@ struct sockaddr_in6 get_peer_addr(int sockfd);
 
 int create_noblocking_socket();
 
-void set_tcp_nodelay(int fd);
+void set_tcp_nodelay(int fd, bool no_delay);
 
 struct timeval timestamp_to_timeval(long interval);
 int64_t get_monotonic_timestamp();

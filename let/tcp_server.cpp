@@ -75,15 +75,13 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
         return;
     }
 
-    if(options_.tcp_no_delay){
-        set_tcp_nodelay(sock_fd);
-    }
-
     auto local_addr = IpAddress(get_local_addr(sock_fd));
 
     auto tcp_conn = std::make_shared<TcpConnection>(sock_fd, local_addr, ip_addr);
 
     connections_[sock_fd] = tcp_conn;
+
+    tcp_conn->setNoDelay(options_.tcp_no_delay);
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);

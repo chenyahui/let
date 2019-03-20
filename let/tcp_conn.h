@@ -57,6 +57,8 @@ public:
 
   int64_t getLastActiveTime() const;
 
+  void setNoDelay(bool no_delay);
+
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 

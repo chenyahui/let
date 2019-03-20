@@ -194,4 +194,10 @@ int64_t TcpConnection::getLastActiveTime() const
 {
     return std::max(last_readtime_ms_, last_writetime_ms_);
 }
+
+void TcpConnection::setNoDelay(bool no_delay)
+{
+    set_tcp_nodelay(fd_, no_delay);
+}
+
 } // namespace let
