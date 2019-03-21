@@ -82,6 +82,7 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
     connections_[sock_fd] = tcp_conn;
 
     tcp_conn->setNoDelay(options_.tcp_no_delay);
+    tcp_conn->setKeepAlive(options_.socket_keep_alive);
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);

@@ -6,6 +6,7 @@
 #define LET_UTILITY_H
 
 #include <string>
+#include <netinet/tcp.h>
 
 #include "ip_addr.h"
 
@@ -20,7 +21,8 @@ struct sockaddr_in6 get_peer_addr(int sockfd);
 
 int create_noblocking_socket();
 
-void set_tcp_nodelay(int fd, bool no_delay);
+void set_tcp_option(int fd, short option, bool enable);
+void set_socket_option(int fd, short option, bool enable);
 
 struct timeval timestamp_to_timeval(long interval);
 int64_t get_monotonic_timestamp();

@@ -195,9 +195,29 @@ int64_t TcpConnection::getLastActiveTime() const
     return std::max(last_readtime_ms_, last_writetime_ms_);
 }
 
+void TcpConnection::setKeepAlive(bool keep_alive)
+{
+    set_socket_option(fd_, SO_KEEPALIVE, keep_alive);
+}
+
 void TcpConnection::setNoDelay(bool no_delay)
 {
-    set_tcp_nodelay(fd_, no_delay);
+    set_tcp_option(fd_, TCP_NODELAY, no_delay);
+}
+
+void TcpConnection::closeRead()
+{
+    changeEvent(EV_READ);
+}
+
+void TcpConnection::closeWrite()
+{
+    changeEvent(EV_WRITE);
+}
+
+void TcpConnection::close()
+{
+    evutil_closesocket(fd_);
 }
 
 } // namespace let

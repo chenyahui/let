@@ -59,6 +59,14 @@ public:
 
   void setNoDelay(bool no_delay);
 
+  void setKeepAlive(bool keep_alive);
+
+  void closeRead();
+
+  void closeWrite();
+
+  void close();
+
 private:
   static void readCallback(struct bufferevent *bev, void *ctx);
 

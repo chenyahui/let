@@ -21,3 +21,4 @@
 - [ ] 单元测试
 - [ ] rate limit
 - [ ] MPSC的队列
+- [ ] 按照Go的TcpConnection实现

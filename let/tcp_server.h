@@ -25,6 +25,7 @@ struct ServerOptions
   size_t idle_timeout_sec = 0; // 单位 s，如果在设定时间内该连接没有读写，则关闭该连接。为0则不开启
 
   bool tcp_no_delay = true; // 开启tcp_no_delay, 默认开启
+  bool socket_keep_alive = false; // 开始socket的keep alive选项
 };
 
 class TcpServer

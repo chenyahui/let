@@ -149,10 +149,16 @@ int64_t get_wall_clock_timestamp()
     return -1;
 }
 
-void set_tcp_nodelay(int fd, bool no_delay)
+void set_tcp_option(int fd, short option, bool enable)
 {
-    int enable = no_delay;
-    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&enable, sizeof(enable));
+    int enable_val = enable;
+    setsockopt(fd, IPPROTO_TCP, option, (void *)&enable_val, sizeof(enable_val));
+}
+
+void set_socket_option(int fd, short option, bool enable)
+{
+    int enable_val = enable;
+    setsockopt(fd, SOL_SOCKET, option, (void *)&enable_val, sizeof(enable_val));
 }
 
 } // namespace let
