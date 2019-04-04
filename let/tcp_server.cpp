@@ -109,11 +109,13 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
         connection_cb_(tcp_conn);
     }
 
-    // create bufferevent
+    // select a sub eventloop
     auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
     const auto &ev_loop = ev_loop_thread->getEventLoop();
 
+    // create bufferevent
     auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sock_fd, BEV_OPT_CLOSE_ON_FREE);
+
     if (!buf_ev)
     {
         LOG_ERROR << "bufferevent_socket_new error";
@@ -122,12 +124,13 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
     }
 
     // 设置高低水位
-    bufferevent_setwatermark(buf_ev,
-                             EV_READ,
-                             options_.read_low_water,
-                             options_.read_high_water);
+//    bufferevent_setwatermark(buf_ev,
+//                             EV_READ,
+//                             options_.read_low_water,
+//                             options_.read_high_water);
 
     tcp_conn->bindBufferEvent(buf_ev);
+
 }
 
 void TcpServer::removeConnection(TcpConnectionPtr conn)

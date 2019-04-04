@@ -28,4 +28,4 @@ add_library(
         worker_pool.h
 )
 
-target_link_libraries(let event pthread)
+target_link_libraries(let event event_pthreads pthread)

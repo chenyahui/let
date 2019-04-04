@@ -39,6 +39,7 @@ private:
   EventLoop event_loop_;
 
   std::thread thread_;
+
 };
 
 class EventLoopThreadPool

@@ -173,6 +173,8 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
     out_buf_ = std::move(std::unique_ptr<Buffer>(new Buffer(bufferevent_get_output(buf_ev_))));
 
     changeEvent(EV_READ);
+
+    readCallback(buf_ev, this);
 }
 
 void TcpConnection::setContext(void* context)
