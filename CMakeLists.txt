@@ -3,8 +3,6 @@ project(let)
 
 set(CMAKE_CXX_STANDARD 11)
 
-SET (CMAKE_CXX_COMPILER "/usr/bin/clang++")
-
 set(CXX_FLAGS
         -g
         -DCHECK_PTHREAD_RETURN_VALUE

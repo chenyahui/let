@@ -22,3 +22,7 @@
 - [ ] rate limit
 - [ ] MPSC的队列
 - [ ] 按照Go的TcpConnection实现
+- [ ] 优雅关闭
+- [ ] 是否直接内置codec
+- [ ] channel
+

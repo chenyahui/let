@@ -25,6 +25,7 @@ add_library(
         generic_conn_pool.h
         channel.h
         string_view.h
+        worker_pool.h
 )
 
 target_link_libraries(let event pthread)

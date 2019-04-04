@@ -57,7 +57,8 @@ void EventLoopThreadPool::start()
 
     for (size_t i = 0; i < thread_num_; i++)
     {
-        event_loop_threads_.push_back(std::move(std::unique_ptr<EventLoopThread>()));
+        auto ev_thread_ptr = std::unique_ptr<EventLoopThread>(new EventLoopThread());
+        event_loop_threads_.push_back(std::move(ev_thread_ptr));
     }
 }
 
