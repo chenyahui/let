@@ -8,7 +8,6 @@
 #include <event2/bufferevent.h>
 #include <memory>
 #include <string>
-#include <any>
 #include <atomic>
 
 #include "callback.h"
@@ -37,11 +36,9 @@ public:
 
   Buffer *outBuffer();
 
-  void setContext(std::any context);
+  void setContext(void* context);
 
-  const std::any &getContext() const;
-
-  std::any *getMutableContext();
+  void* getContext();
 
   void setMessageCallback(const MessageCallback &);
 
@@ -91,7 +88,7 @@ private:
   DisconnectionCallback disconnection_cb_;
   ErrorCallback error_cb_;
 
-  std::any context_;
+  void* context_ = nullptr;
 
   std::atomic<int64_t> last_readtime_ms_; // ms
   std::atomic<int64_t> last_writetime_ms_; // ms

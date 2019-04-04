@@ -1,5 +1,5 @@
-#ifndef LET_POOL_H
-#define LET_POOL_H
+#ifndef LET_GENERIC_CONNECTION_POOL_H
+#define LET_GENERIC_CONNECTION_POOL_H
 #include <memory>
 #include <vector>
 #include <mutex>
@@ -10,22 +10,27 @@ namespace let
 {
 // 一个通用的连接池。可以用它实现mysql连接池、rpc连接池
 template <class T>
-class ConnectionPool
+class GenericConnectionPool
 {
 public:
   using ConnectionPtr = std::shared_ptr<T>;
   using NewConnectionCallback = std::function<ConnectionPtr()>;
   using CloseConnectionCallback = std::function<void(ConnectionPtr)>;
 
-  ConnectionPool(size_t max_idle_conns,
-                 size_t max_open_conns,
-                 const NewConnectionCallback &new_conn_cb,
-                 const CloseConnectionCallback &close_conn_cb)
+  GenericConnectionPool(size_t max_idle_conns,
+                        size_t max_open_conns,
+                        const NewConnectionCallback &new_conn_cb,
+                        const CloseConnectionCallback &close_conn_cb)
       : max_idle_conns_(max_idle_conns),
         max_open_conns_(max_open_conns),
         new_conn_cb_(new_conn_cb),
         close_conn_cb_(close_conn_cb)
   {
+  }
+
+  ~GenericConnectionPool()
+  {
+    // todo stop connections
   }
 
   ConnectionPtr get()

@@ -22,8 +22,9 @@ add_library(
         callback.h
         ip_addr.h
         ip_addr.cpp
-        pool.h
+        generic_conn_pool.h
         channel.h
+        string_view.h
 )
 
 target_link_libraries(let event pthread)

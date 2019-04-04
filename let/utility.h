@@ -25,7 +25,9 @@ void set_tcp_option(int fd, short option, bool enable);
 void set_socket_option(int fd, short option, bool enable);
 
 struct timeval timestamp_to_timeval(long interval);
+
 int64_t get_monotonic_timestamp();
+
 int64_t get_wall_clock_timestamp();
 
 } // namespace let

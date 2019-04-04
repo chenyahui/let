@@ -6,8 +6,9 @@
 #define LET_BUFFER_H
 
 #include <event2/buffer.h>
-#include <string_view>
 #include <string>
+
+#include "string_view.h"
 
 namespace let
 {
@@ -95,18 +96,18 @@ class Buffer
         return search(what.c_str(), what.size());
     }
 
-    std::string_view pullUp(ev_ssize_t size = -1)
+    StringView pullUp(ev_ssize_t size = -1)
     {
         auto buffer = (char *)evbuffer_pullup(ev_buf_, size);
-        return std::string_view(buffer, length());
+        return StringView(buffer, length());
     }
 
-    std::string_view readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)
+    StringView readLine(enum evbuffer_eol_style eol_style = EVBUFFER_EOL_ANY)
     {
         size_t n_read_out = 0;
         char *data = evbuffer_readln(ev_buf_, &n_read_out, eol_style);
 
-        return {data, n_read_out};
+        return StringView(data, n_read_out);
     }
 
     std::string retrieveAllAsString()

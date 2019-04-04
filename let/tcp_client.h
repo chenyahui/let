@@ -9,7 +9,6 @@
 #include "event_loop.h"
 #include "connector.h"
 #include "callback.h"
-#include "pool.h"
 
 namespace let
 {

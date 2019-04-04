@@ -1,7 +1,7 @@
 - [ ] C++17
 - [ ] event_loop加锁
 - [ ] 支持ipv6
-- [ ] 支持ssl
+- [x] 支持ssl(不做了)
 - [ ] connect_pool
 - [ ] 过期连接检测
 - [ ] 超时时间配置

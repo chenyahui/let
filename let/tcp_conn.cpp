@@ -137,11 +137,6 @@ Buffer *TcpConnection::outBuffer()
     return out_buf_.get();
 }
 
-void TcpConnection::setContext(std::any context)
-{
-    context_ = context;
-}
-
 const IpAddress &TcpConnection::getLocalAddr() const
 {
     return local_addr_;
@@ -174,18 +169,18 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
 {
     buf_ev_ = buf_ev;
 
-    in_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_input(buf_ev_)));
-    out_buf_ = std::move(std::make_unique<Buffer>(bufferevent_get_output(buf_ev_)));
+    in_buf_ = std::move(std::unique_ptr<Buffer>(new Buffer(bufferevent_get_input(buf_ev_))));
+    out_buf_ = std::move(std::unique_ptr<Buffer>(new Buffer(bufferevent_get_output(buf_ev_))));
 
     changeEvent(EV_READ);
 }
 
-std::any *TcpConnection::getMutableContext()
+void TcpConnection::setContext(void* context)
 {
-    return &context_;
+    context_ = context;
 }
 
-const std::any &TcpConnection::getContext() const
+void* TcpConnection::getContext()
 {
     return context_;
 }
