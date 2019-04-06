@@ -124,10 +124,10 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
     }
 
     // 设置高低水位
-//    bufferevent_setwatermark(buf_ev,
-//                             EV_READ,
-//                             options_.read_low_water,
-//                             options_.read_high_water);
+    bufferevent_setwatermark(buf_ev,
+                             EV_READ,
+                             options_.read_low_water,
+                             options_.read_high_water);
 
     tcp_conn->bindBufferEvent(buf_ev);
 

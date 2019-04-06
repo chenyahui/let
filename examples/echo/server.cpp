@@ -2,6 +2,7 @@
 #include <let/tcp_server.h>
 #include <let/logger.h>
 #include <event2/thread.h>
+
 using namespace let;
 
 void log(int severity, const char *msg)

@@ -174,7 +174,7 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
 
     changeEvent(EV_READ);
 
-    readCallback(buf_ev, this);
+//    readCallback(buf_ev, this);
 }
 
 void TcpConnection::setContext(void* context)
