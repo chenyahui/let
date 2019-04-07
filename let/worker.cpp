@@ -1,11 +1,13 @@
 #include "worker.h"
+#include "logger.h"
 
 namespace let
 {
 WorkerPool::WorkerPool(size_t worker_num)
     : current_worker_(0)
 {
-    for (size_t i = 0; i < worker_num; i++) {
+    for (size_t i = 0; i < worker_num; i++)
+    {
         workers_.emplace_back(new Worker());
     }
 }
@@ -35,13 +37,16 @@ void WorkerPool::dispatch(size_t hash, Job &&job)
 
 void Worker::threadFunc()
 {
-    while (!finish_) {
+    while (!finish_)
+    {
         std::unique_lock<std::mutex> lock(mutex_);
-        if (queue_.empty()) {
+        if (queue_.empty())
+        {
             cond_.wait(lock, [=]() { return !queue_.empty(); });
         }
 
-        while (!queue_.empty()) {
+        while (!queue_.empty())
+        {
             Job job = queue_.front();
             queue_.pop();
             job();
@@ -58,6 +63,7 @@ void Worker::postJob(const Job &job)
 
 void Worker::stop()
 {
+    LOG_DEBUG << "stop worker";
     finish_ = true;
 }
 
@@ -68,7 +74,8 @@ Worker::Worker()
 
 void WorkerPool::stop()
 {
-    for (auto &worker: workers_) {
+    for (auto &worker: workers_)
+    {
         worker->stop();
     }
 }

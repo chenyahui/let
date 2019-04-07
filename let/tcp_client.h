@@ -32,8 +32,6 @@ public:
   void setErrorCallback(const ErrorCallback &);
 
 private:
-  static void handleEvent(struct bufferevent *bev, short events, void *ctx);
-
   void newConnection(evutil_socket_t fd);
 
 private:

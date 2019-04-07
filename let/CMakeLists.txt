@@ -27,6 +27,7 @@ add_library(
         string_view.h
         worker.h
         worker.cpp
+        noncopyable.h
 )
 
 target_link_libraries(let event event_pthreads pthread)
