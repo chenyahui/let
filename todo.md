@@ -1,5 +1,5 @@
 - [ ] C++17
-- [ ] event_loop加锁
+- [x] event_loop加锁
 - [ ] 支持ipv6
 - [x] 支持ssl(不做了)
 - [ ] connect_pool
@@ -25,4 +25,4 @@
 - [ ] 优雅关闭
 - [ ] 是否直接内置codec
 - [ ] channel
-
+- [ ] 可以自动报警，处理超过某一阈值的任务，防止eventloop阻塞(仿vertx)

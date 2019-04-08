@@ -45,14 +45,12 @@ class Logger
   private:
     static LogLevel g_log_level;
 };
-
-#define LOG(level) (Logger(__FILE__, __FUNCTION__, __LINE__, level))
-#define LOG_DEBUG LOG(DEBUG)
-#define LOG_INFO LOG(INFO)
-#define LOG_WARN LOG(WARN)
-#define LOG_ERROR LOG(ERROR)
-#define LOG_FATAL LOG(FATAL)
-
 } // namespace let
 
+#define LOG(level) (::let::Logger(__FILE__, __FUNCTION__, __LINE__, level))
+#define LOG_DEBUG LOG(::let::LogLevel::DEBUG)
+#define LOG_INFO LOG(::let::LogLevel::INFO)
+#define LOG_WARN LOG(::let::LogLevel::WARN)
+#define LOG_ERROR LOG(::let::LogLevel::ERROR)
+#define LOG_FATAL LOG(::let::LogLevel::FATAL)
 #endif //LET_LOGGER_H

@@ -13,7 +13,6 @@ EventLoop::EventLoop()
 
 EventLoop::~EventLoop()
 {
-
     stop();
     event_base_free(ev_base_);
 }
