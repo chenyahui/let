@@ -32,9 +32,10 @@ Acceptor::Acceptor(EventLoop *loop, const IpAddress &ip_addr)
     if (listener_ == nullptr)
     {
         LOG_FATAL << "couldn't open listener! errno[" << errno << "]: " << strerror(errno);
+        return;
     }
 
-    LOG_DEBUG << "start listen on: " << ip_addr.format();
+    LOG_DEBUG << "start listen on: " << ip_addr.format() << ", fd is " << evconnlistener_get_fd(listener_);
 }
 
 Acceptor::~Acceptor()
@@ -73,6 +74,8 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
     {
         self->new_connect_cb_(fd, ip_addr);
     }
+
+    LOG_INFO << "accept new connection end";
 }
 
 void Acceptor::setNewConnectionCallback(const NewConnectionCallback &callback)

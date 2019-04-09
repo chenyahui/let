@@ -13,18 +13,21 @@ namespace let
 TcpServer::TcpServer(EventLoop *loop, const IpAddress &ip_addr, const ServerOptions &options)
     : loop_(loop),
       options_(options),
-      acceptor_(loop, ip_addr),
-      event_loop_thread_pool_(options.io_thread_num)
+      acceptor_(loop, ip_addr)
 {
     acceptor_.setNewConnectionCallback(std::bind(&TcpServer::newConnection,
                                                  this,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2));
+
+    if(options.io_thread_num > 0){
+        event_loop_thread_pool_ = std::move(std::unique_ptr<EventLoopThreadPool>(new EventLoopThreadPool(options_.io_thread_num)));
+    }
 }
 
 void TcpServer::run()
 {
-    event_loop_thread_pool_.start();
+    event_loop_thread_pool_->start();
     acceptor_.listen();
 
     // 如果开启了闲置连接检查，则注册timer
@@ -37,7 +40,7 @@ void TcpServer::run()
 void TcpServer::stop()
 {
     acceptor_.stop();
-    event_loop_thread_pool_.stop();
+    event_loop_thread_pool_->stop();
 
     // todo stop timer
 }
@@ -62,14 +65,15 @@ void TcpServer::setErrorCallback(const ErrorCallback &cb)
     error_cb_ = cb;
 }
 
-void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
+void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &remote_addr)
 {
-    LOG_INFO << "tcp server get new connection, " << ip_addr.format();
+    LOG_INFO << "tcp server get new connection, " << remote_addr.format();
 
+    auto remote_addr_str = remote_addr.format();
     if (options_.max_connections > 0 && connections_.size() >= options_.max_connections)
     {
         LOG_ERROR << "tcp server has max connections: " << options_.max_connections
-                  << ", and reject the connection: " << ip_addr.format();
+                  << ", and reject the connection: " << remote_addr_str;
 
         evutil_closesocket(sock_fd);
         return;
@@ -77,30 +81,30 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
 
     auto local_addr = IpAddress(get_local_addr(sock_fd));
 
-    auto tcp_conn = std::make_shared<TcpConnection>(sock_fd, local_addr, ip_addr);
+    auto tcp_conn = std::make_shared<TcpConnection>(sock_fd, local_addr, remote_addr);
 
-    connections_[sock_fd] = tcp_conn;
+    connections_[remote_addr_str] = tcp_conn;
 
     tcp_conn->setNoDelay(options_.tcp_no_delay);
-    tcp_conn->setKeepAlive(options_.socket_keep_alive);
+    tcp_conn->setKeepAlive(options_.so_keep_alive);
 
     // set callback
     tcp_conn->setMessageCallback(message_cb_);
 
     tcp_conn->setDisconnectionCallback([&](TcpConnectionPtr conn) {
-        if (disconnection_cb_)
-        {
-            disconnection_cb_(conn);
-        }
-        removeConnection(conn);
+      if (disconnection_cb_)
+      {
+          disconnection_cb_(conn);
+      }
+      removeConnection(conn);
     });
 
     tcp_conn->setErrorCallback([&](TcpConnectionPtr conn, int err_code) {
-        if (error_cb_)
-        {
-            error_cb_(conn, err_code);
-        }
-        removeConnection(conn);
+      if (error_cb_)
+      {
+          error_cb_(conn, err_code);
+      }
+      removeConnection(conn);
     });
 
     if (connection_cb_)
@@ -109,12 +113,22 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
         connection_cb_(tcp_conn);
     }
 
-    // select a sub eventloop
-    auto ev_loop_thread = event_loop_thread_pool_.getNextEventLoopThread();
-    const auto &ev_loop = ev_loop_thread->getEventLoop();
+    EventLoop *loop = nullptr;
+
+    if (options_.io_thread_num > 0)
+    {
+        // select a sub eventloop
+        auto ev_loop_thread = event_loop_thread_pool_->getNextEventLoopThread();
+        auto &ev_loop = ev_loop_thread->getEventLoop();
+        loop = const_cast<EventLoop *>(&ev_loop);
+    }
+    else
+    {
+        loop = loop_;
+    }
 
     // create bufferevent
-    auto buf_ev = bufferevent_socket_new(ev_loop.getEvBase(), sock_fd, BEV_OPT_CLOSE_ON_FREE);
+    auto buf_ev = bufferevent_socket_new(loop->getEvBase(), sock_fd, BEV_OPT_CLOSE_ON_FREE);
 
     if (!buf_ev)
     {
@@ -136,7 +150,7 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &ip_addr)
 void TcpServer::removeConnection(TcpConnectionPtr conn)
 {
     LOG_DEBUG << "remove connection: " << conn->getRemoteAddr().format();
-    connections_.erase(conn->getFd());
+    connections_.erase(conn->getRemoteAddr().format());
 }
 
 // 定时检查闲置连接

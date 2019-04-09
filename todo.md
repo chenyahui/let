@@ -26,3 +26,4 @@
 - [ ] 是否直接内置codec
 - [ ] channel
 - [ ] 可以自动报警，处理超过某一阈值的任务，防止eventloop阻塞(仿vertx)
+- [ ] 将两种类型的io_thread统一表示为event_loop_thread_pool(参考netty怎么做的)

@@ -43,7 +43,7 @@ const EventLoop &EventLoopThread::getEventLoop() const
 
 void EventLoopThreadPool::stop()
 {
-    for (auto &loop : event_loop_threads_)
+    for (const auto &loop : event_loop_threads_)
     {
         loop->stop();
     }
@@ -69,8 +69,9 @@ EventLoopThreadPool::~EventLoopThreadPool()
 
 EventLoopThread *EventLoopThreadPool::getNextEventLoopThread()
 {
-    if(event_loop_threads_.empty() || next_ > event_loop_threads_.size()){
-        LOG_ERROR << "event_loop_threads is empty"; 
+    if (event_loop_threads_.empty() || next_ > event_loop_threads_.size())
+    {
+        LOG_ERROR << "event_loop_threads is empty";
         return nullptr;
     }
 
