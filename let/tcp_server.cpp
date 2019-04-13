@@ -20,14 +20,19 @@ TcpServer::TcpServer(EventLoop *loop, const IpAddress &ip_addr, const ServerOpti
                                                  std::placeholders::_1,
                                                  std::placeholders::_2));
 
-    if(options.io_thread_num > 0){
-        event_loop_thread_pool_ = std::move(std::unique_ptr<EventLoopThreadPool>(new EventLoopThreadPool(options_.io_thread_num)));
+    if (options.io_thread_num > 0)
+    {
+        event_loop_thread_pool_ =
+            std::move(std::unique_ptr<EventLoopThreadPool>(new EventLoopThreadPool(options_.io_thread_num)));
     }
 }
 
 void TcpServer::run()
 {
-    event_loop_thread_pool_->start();
+    if (event_loop_thread_pool_)
+    {
+        event_loop_thread_pool_->start();
+    }
     acceptor_.listen();
 
     // 如果开启了闲置连接检查，则注册timer
@@ -40,7 +45,11 @@ void TcpServer::run()
 void TcpServer::stop()
 {
     acceptor_.stop();
-    event_loop_thread_pool_->stop();
+
+    if (event_loop_thread_pool_)
+    {
+        event_loop_thread_pool_->stop();
+    }
 
     // todo stop timer
 }
