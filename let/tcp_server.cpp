@@ -92,6 +92,8 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &remote_a
     tcp_conn->setMessageCallback(message_cb_);
 
     tcp_conn->setDisconnectionCallback([&](TcpConnectionPtr conn) {
+      LOG_DEBUG << "disconnection callback called";
+
       if (disconnection_cb_)
       {
           disconnection_cb_(conn);
@@ -100,6 +102,7 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &remote_a
     });
 
     tcp_conn->setErrorCallback([&](TcpConnectionPtr conn, int err_code) {
+      LOG_DEBUG << "error callback called, err_code is " << err_code;
       if (error_cb_)
       {
           error_cb_(conn, err_code);
@@ -144,7 +147,6 @@ void TcpServer::newConnection(evutil_socket_t sock_fd, const IpAddress &remote_a
                              options_.read_high_water);
 
     tcp_conn->bindBufferEvent(buf_ev);
-
 }
 
 void TcpServer::removeConnection(TcpConnectionPtr conn)

@@ -90,7 +90,7 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     bool finished = false;
     if (events & BEV_EVENT_EOF)
     {
-        LOG_INFO << "tcp connnection close callback called";
+        LOG_INFO << "tcp connection close callback called";
 
         if (self->disconnection_cb_)
         {
@@ -99,7 +99,7 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     }
     else if (events & BEV_EVENT_ERROR)
     {
-        LOG_INFO << "tcp connnection error callback called";
+        LOG_INFO << "tcp connection error callback called";
 
         if (self->error_cb_)
         {
@@ -108,7 +108,7 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
     }
     else
     {
-        LOG_INFO << "tcp connnection event callback called";
+        LOG_INFO << "tcp connection event callback called";
     }
 }
 
@@ -174,7 +174,7 @@ void TcpConnection::bindBufferEvent(bufferevent *buf_ev)
 
     changeEvent(EV_READ);
 
-//    readCallback(buf_ev, this);
+    readCallback(buf_ev, this);
 }
 
 void TcpConnection::setContext(void* context)
