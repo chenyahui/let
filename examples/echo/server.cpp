@@ -13,33 +13,34 @@ void log(int severity, const char *msg)
 class MyHandler : public TcpHandler
 {
 public:
-    ~MyHandler(){
+    ~MyHandler()
+    {
         LOG_VERBOSE << "myhandler deconstruct";
     }
 
-    virtual void onConnected(TcpConnectionPtr)
+    void onConnected(TcpConnectionPtr) override
     {
         LOG_DEBUG << "on connected";
     }
 
-    virtual int splitMessage(TcpConnectionPtr, const char *data, size_t length)
+    int splitMessage(TcpConnectionPtr, const char *data, size_t length) override
     {
         LOG_DEBUG << "split message";
         return length;
     }
 
-    virtual int onMessage(TcpConnectionPtr conn, const char *data, size_t length)
+    void onMessage(TcpConnectionPtr conn, const char *data, size_t length) override
     {
         LOG_DEBUG << "onMessage:" << data;
         conn->write(data, length);
     }
 
-    virtual int onDisconnected(TcpConnectionPtr)
+    void onDisconnected(TcpConnectionPtr) override
     {
         LOG_DEBUG << "on disconnected";
     }
 
-    virtual int onError(TcpConnectionPtr, int error)
+    void onError(TcpConnectionPtr, int error) override
     {
         LOG_DEBUG << "on error";
     }

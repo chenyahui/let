@@ -14,11 +14,11 @@ public:
 
     virtual int splitMessage(TcpConnectionPtr, const char *data, size_t length) = 0;
 
-    virtual int onMessage(TcpConnectionPtr, const char *data, size_t length) = 0;
+    virtual void onMessage(TcpConnectionPtr, const char *data, size_t length) = 0;
 
-    virtual int onDisconnected(TcpConnectionPtr) {}
+    virtual void onDisconnected(TcpConnectionPtr) {}
 
-    virtual int onError(TcpConnectionPtr, int error) {}
+    virtual void onError(TcpConnectionPtr, int error) {}
 };
 
 using TcpHandlerPtr = std::shared_ptr<TcpHandler>;
