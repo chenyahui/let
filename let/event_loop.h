@@ -1,42 +1,79 @@
 #ifndef LET_EVENT_LOOP_H
 #define LET_EVENT_LOOP_H
 
-#include <event.h>
+#include <queue>
+#include <functional>
+#include <mutex>
 #include <map>
-#include <memory>
+#include <thread>
+#include <event.h>
 
 #include "noncopyable.h"
-#include "callback.h"
 
 namespace let
 {
+class EventLoop;
+struct TimerInfo;
+
+class TimerId
+{
+public:
+    friend class EventLoop;
+
+    TimerId(TimerInfo *timer_info) : info(timer_info) {}
+
+private:
+    TimerInfo *info = nullptr;
+};
+
 class EventLoop : NonCopyAble
 {
-  public:
+public:
     EventLoop();
 
     ~EventLoop();
 
-    void loop();
+    using Task = std::function<void()>;
 
-    event_base *getEvBase() const;
+    event_base *lowLevelEvBase() const;
+
+    // ms
+    TimerId runEvery(long milliseconds, Task task);
+
+    // ms
+    TimerId runAfter(long milliseconds, Task task);
+
+    void cancelTimer(TimerId &timer_id);
+
+    void execute(Task, bool queued = true);
+
+    // 是否处于event_loop的线程中
+    bool isInEventLoop();
+
+    void wakeUp();
 
     void stop();
 
-    TimerId runEvery(long interval, const TimerCallback &cb);
+    void startLoop();
 
-    TimerId runAfter(long interval, const TimerCallback &cb);
+private:
+    static void handleWakeUpEvent(evutil_socket_t, short, void *);
 
-    void cancelTimer(TimerId);
+    TimerId registerTimer(long milliseconds, Task task, bool run_every);
 
-  private:
-    static void timerWrapper(int, short, void *);
+    static void onTimer(int, short, void *);
 
-    TimerId runTimer(long interval, const TimerCallback &cb, bool run_every);
+private:
+    std::mutex mutex_;
+    std::vector<Task> pendding_jobs_;
+    std::map<event *, Task> timer_callbacks_;
 
     event_base *ev_base_;
 
-    // std::map<TimerId, std::unique_ptr<TimerCallback>> timer_map_;
+    event *wakeup_event_;
+    int wakeup_fd_ = -1;
+
+    std::thread::id current_loop_thread_id_;
 };
 } // namespace let
 

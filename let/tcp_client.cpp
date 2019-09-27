@@ -1,61 +1,116 @@
+#include <assert.h>
+
 #include "tcp_client.h"
-#include "tcp_conn.h"
-#include "utility.h"
+#include "socket.h"
+#include "logger.h"
 
-namespace let
+using namespace let;
+
+TcpClient::TcpClient()
 {
-TcpClient::TcpClient(EventLoop *event_loop, const IpAddress &remote_addr)
-    : event_loop_(event_loop),
-      remote_addr_(remote_addr),
-      connector_(event_loop, remote_addr)
-{
-    connector_.setNewConnectionCallback(std::bind(&TcpClient::newConnection, this, std::placeholders::_1));
+
 }
 
-void TcpClient::setMessageCallback(const MessageCallback &cb)
+TcpClient &TcpClient::setEventLoop(EventLoop *event_loop)
 {
-    message_cb_ = cb;
+    event_loop_ = event_loop;
+    return *this;
 }
 
-void TcpClient::setConnectionCallback(const ConnectionCallback &cb)
+TcpClient &TcpClient::setExecutor(ThreadedExecutorPool *task_pool)
 {
-    connection_cb_ = cb;
+    task_pool_ = task_pool;
+    return *this;
 }
 
-void TcpClient::setDisconnectionCallback(const DisconnectionCallback &cb)
+TcpClient &TcpClient::setHandler(TcpHandler* handler)
 {
-    disconnection_cb_ = cb;
+    handler_ = handler;
+    return *this;
 }
 
-void TcpClient::setErrorCallback(const ErrorCallback &cb)
+bool TcpClient::connect(const IpAddress &remote_addr)
 {
-    error_cb_ = cb;
+    // check valid
+    assert(event_loop_ != nullptr);
+    assert(handler_);
+
+    remote_addr_ = remote_addr;
+
+    connector_ = std::move(std::unique_ptr<Connector>(new Connector(event_loop_,
+                                                                    remote_addr)));
+
+    connector_->setNewConnectionCallback(std::bind(&TcpClient::newConnection,
+                                                   this,
+                                                   std::placeholders::_1));
+
+    return connector_->connect();
 }
 
-void TcpClient::connect()
+void TcpClient::newConnection(evutil_socket_t sock_fd)
 {
-    connector_.connect();
+    // select a child event loop thread
+    EventLoop *loop = event_loop_;
+
+    auto local_addr = IpAddress(get_local_addr(sock_fd));
+
+    auto tcp_conn = std::make_shared<TcpConnection>(loop,
+                                                    connector_->getBufferEvent(),
+                                                    sock_fd,
+                                                    remote_addr_,
+                                                    local_addr);
+    
+    tcp_conn->enableRead();
+
+    handler_->onConnected(tcp_conn);
 }
 
-void TcpClient::newConnection(evutil_socket_t fd)
+void TcpClient::onMessage(TcpConnectionPtr tcp_conn)
 {
-    auto local_addr = IpAddress(get_local_addr(fd));
-    auto tcp_conn = std::make_shared<TcpConnection>(fd, local_addr, remote_addr_);
+    auto &read_buf = tcp_conn->readBuffer();
 
-    // set callbacks
-    tcp_conn->setMessageCallback(message_cb_);
-    tcp_conn->setDisconnectionCallback(disconnection_cb_);
-    tcp_conn->setErrorCallback(error_cb_);
+     // make buffer contiguous
+    auto data = read_buf.pullUp();
 
-    auto buf_ev = connector_.getBufferEvent();
+     int ret = handler_->splitMessage(tcp_conn, data, read_buf.size());
+      // the message is imcompleted, need more buffer
+    if (ret == 0)
+    {
+        return;
+    }
+    else if (ret < 0)
+    {
+        LOG_ERROR << "msg is error";
+        return;
+    }
 
-    tcp_conn->bindBufferEvent(const_cast<bufferevent *>(buf_ev));
+     // if task pool is setuped, handle this message at task thread pool
+    if (task_pool_ != nullptr)
+    {
+        std::string msg = read_buf.retrieveAsString(ret);
 
-    // call callback
-    connection_cb_(tcp_conn);
-
-    // hold the connection
-    conn_ = tcp_conn;
+        task_pool_->submit([tcp_conn, msg, this]() {
+            handler_->onMessage(tcp_conn, msg.data(), msg.size());
+        });
+    }
+    else
+    {
+        // just handle message at io thread
+        handler_->onMessage(tcp_conn, data, ret);
+        read_buf.consume(ret);
+    }
 }
 
-} // namespace let
+void TcpClient::onDisconnected(TcpConnectionPtr tcp_conn)
+{
+    handler_->onDisconnected(tcp_conn);
+}
+
+void TcpClient::onError(TcpConnectionPtr tcp_conn, int error)
+{
+    handler_->onError(tcp_conn, error);
+}
+
+void TcpClient::onWriteCompleted(TcpConnectionPtr)
+{
+}

@@ -10,7 +10,7 @@
 
 namespace let
 {
-LogLevel Logger::g_log_level = DEBUG;
+LogLevel Logger::g_log_level = VERBOSE;
 
 Logger::Logger(const std::string &file_name, const std::string &func_name, int line, LogLevel level)
     : file_name_(file_name),
@@ -37,6 +37,9 @@ Logger::~Logger()
 
     switch (level_)
     {
+    case VERBOSE:
+        level_str = "VERBOSE";
+        break;
     case DEBUG:
         level_str = "DEBUG";
         break;
@@ -56,9 +59,10 @@ Logger::~Logger()
     }
     }
 
-    std::string now_time_str = format_now_time("%Y-%m-%d %H:%M:%S");
+    auto now_time = get_now_time_t();
+    std::string now_time_str = format_time(now_time, "%Y-%m-%d %H:%M:%S");
 
-    char* format_msg = new char[now_time_str.size() + file_name_.size() + func_name_.size() + level_str.size() + msg.size() + 50];
+    char *format_msg = new char[now_time_str.size() + file_name_.size() + func_name_.size() + level_str.size() + msg.size() + 50];
 
     sprintf(format_msg, "%s [%s:%s:%d] [%s] %s",
             now_time_str.c_str(),

@@ -6,29 +6,52 @@
 #define LET_UTILITY_H
 
 #include <string>
-#include <netinet/tcp.h>
-
-#include "ip_addr.h"
+#include <sys/time.h>
+#include <cstdint>
+#include <utility>
 
 namespace let
 {
+struct timeval milliseconds_to_timeval(long interval);
+
+int64_t get_monotonic_milliseconds();
+
+time_t get_now_time_t();
+
 std::string format_time(time_t, const std::string &format);
-std::string format_now_time(const std::string &format);
 
-// 用sockaddr_in6解析可以兼容sockaddr_in
-struct sockaddr_in6 get_local_addr(int sockfd);
-struct sockaddr_in6 get_peer_addr(int sockfd);
+void sleep_ms(int64_t milliseconds);
 
-int create_noblocking_socket();
+#include <utility>
 
-void set_tcp_option(int fd, short option, bool enable);
-void set_socket_option(int fd, short option, bool enable);
+template <typename T, typename F>
+class capture_impl
+{
+    T x;
+    F f;
+public:
+    capture_impl( T && x, F && f )
+        : x{std::forward<T>(x)}, f{std::forward<F>(f)}
+    {}
 
-struct timeval timestamp_to_timeval(long interval);
+    template <typename ...Ts> auto operator()( Ts&&...args )
+        -> decltype(f( x, std::forward<Ts>(args)... ))
+    {
+        return f( x, std::forward<Ts>(args)... );
+    }
 
-int64_t get_monotonic_timestamp();
+    template <typename ...Ts> auto operator()( Ts&&...args ) const
+        -> decltype(f( x, std::forward<Ts>(args)... ))
+    {
+        return f( x, std::forward<Ts>(args)... );
+    }
+};
 
-int64_t get_wall_clock_timestamp();
-
+template <typename T, typename F>
+capture_impl<T,F> capture( T && x, F && f )
+{
+    return capture_impl<T,F>(
+        std::forward<T>(x), std::forward<F>(f) );
+}
 } // namespace let
 #endif //LET_UTILITY_H

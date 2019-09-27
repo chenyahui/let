@@ -1,7 +1,3 @@
-//
-// Created by yahuichen(陈亚辉) on 2019/1/19.
-//
-
 #ifndef LET_ACCEPTOR_H
 #define LET_ACCEPTOR_H
 
@@ -30,9 +26,9 @@ public:
 
   void listen();
 
-  void stop();
+  void stopListen();
 
-  void setNewConnectionCallback(const NewConnectionCallback &callback);
+  void setNewConnectionCallback(NewConnectionCallback callback);
 
 private:
   static void handleAccept(struct evconnlistener *listener,
@@ -41,9 +37,11 @@ private:
                                     int socklen,
                                     void *ctx);
 
+  static void handleAcceptError(struct evconnlistener *, void *);
+
 private:
-  EventLoop* loop_;
-  evconnlistener *listener_;
+  EventLoop* loop_;          
+  evconnlistener *ev_listener_; 
 
   NewConnectionCallback new_connect_cb_;
 };

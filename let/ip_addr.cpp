@@ -27,6 +27,7 @@ IpAddress::IpAddress(const std::string &ip, int port)
     if (evutil_parse_sockaddr_port(format_ip_port.c_str(), (struct sockaddr *)&addr6_, &socket_len) < 0)
     {
         LOG_ERROR << "address parse error: " << format();
+        return;
     }
 
     is_ipv6_ = addr6_.sin6_family == AF_INET6;

@@ -1,49 +1,63 @@
-//
-// Created by yahuichen on 2019/1/23.
-//
-
 #ifndef LET_TCP_CLIENT_H
 #define LET_TCP_CLIENT_H
 
 #include "ip_addr.h"
 #include "event_loop.h"
-#include "connector.h"
 #include "callback.h"
+#include "tcp_handler.h"
+#include "threaded_executor.h"
+#include "event_loop_thread_pool.h"
+#include "connector.h"
 
 namespace let
 {
+class ClientOptions
+{
+};
+
 class TcpClient
 {
 public:
-  TcpClient(EventLoop *event_loop, const IpAddress &remote_addr);
+  TcpClient();
 
-  void connect();
+  bool connect(const IpAddress &remote_addr);
 
-  void start();
+  void disConnect();
 
   void stop();
 
-  void setMessageCallback(const MessageCallback &);
+  TcpClient &setEventLoop(EventLoop *event_loop);
 
-  void setConnectionCallback(const ConnectionCallback &);
+  TcpClient &setHandler(TcpHandler* handler);
 
-  void setDisconnectionCallback(const DisconnectionCallback &);
-
-  void setErrorCallback(const ErrorCallback &);
+  TcpClient &setExecutor(ThreadedExecutorPool *task_pool);
 
 private:
   void newConnection(evutil_socket_t fd);
 
+  void onMessage(TcpConnectionPtr);
+
+  void onDisconnected(TcpConnectionPtr);
+
+  void onError(TcpConnectionPtr, int error);
+
+  void onWriteCompleted(TcpConnectionPtr);
+
 private:
-  EventLoop *event_loop_;
+  ThreadedExecutorPool *task_pool_ = nullptr;
+  EventLoop *event_loop_ = nullptr;
+
+  std::unique_ptr<Connector> connector_;
+
   IpAddress remote_addr_;
-  Connector connector_;
 
   MessageCallback message_cb_;
   ConnectionCallback connection_cb_;
   DisconnectionCallback disconnection_cb_;
   ErrorCallback error_cb_;
-  
+
+  TcpHandler* handler_ = nullptr;
+
   TcpConnectionPtr conn_;
 };
 } // namespace let

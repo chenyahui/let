@@ -1,7 +1,7 @@
 #include <iostream>
 #include <let/tcp_server.h>
 #include <let/logger.h>
-#include <event2/thread.h>
+#include <let/utility.h>
 
 using namespace let;
 
@@ -10,26 +10,58 @@ void log(int severity, const char *msg)
     LOG_DEBUG << msg;
 }
 
+class MyHandler : public TcpHandler
+{
+public:
+    virtual void onConnected(TcpConnectionPtr)
+    {
+        LOG_DEBUG << "on connected";
+    }
+
+    virtual int splitMessage(TcpConnectionPtr, const char *data, size_t length)
+    {
+        LOG_DEBUG << "split message";
+        return length;
+    }
+
+    virtual int onMessage(TcpConnectionPtr conn, const char *data, size_t length)
+    {
+        LOG_DEBUG << "onMessage:" << data;
+        conn->write(data, length);
+    }
+
+    virtual int onDisconnected(TcpConnectionPtr)
+    {
+        LOG_DEBUG << "on disconnected";
+    }
+
+    virtual int onError(TcpConnectionPtr, int error)
+    {
+        LOG_DEBUG << "on error";
+    }
+};
+
 int main()
 {
-     event_enable_debug_logging(EVENT_DBG_ALL);
-     event_enable_debug_mode();
-     event_set_log_callback(log);
+    EventLoopThreadPool pool(1);
+    TcpServer server;
 
-    evthread_use_pthreads();
-
-    EventLoop loop;
-
-    TcpServer server(&loop, 8079);
-
-    server.setMessageCallback([](TcpConnectionPtr conn) {
-        auto msg = conn->inBuffer()->retrieveAllAsString();
-        LOG_DEBUG << "收到了msg: " << msg << "#";
-        conn->send(msg);
+    server.setGroup(&pool);
+    server.setHandlerFactory([]() -> TcpHandlerPtr {
+        return std::make_shared<MyHandler>();
     });
 
-    server.run();
-    loop.loop();
+    server.listen(IpAddress(8098));
+    pool.start();
 
+    bool quit = false;
+    while (!quit)
+    {
+        let::sleep_ms(1000);
+    }
+
+    std::cout << "begin stop";
+    server.gracefullyStop();
+    pool.stop();
     return 0;
 }

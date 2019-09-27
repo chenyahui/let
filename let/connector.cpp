@@ -3,7 +3,7 @@
 
 #include "connector.h"
 #include "logger.h"
-#include "utility.h"
+#include "socket.h"
 
 namespace let
 {
@@ -15,14 +15,16 @@ Connector::Connector(EventLoop *event_loop, const IpAddress &remote_addr)
 bool Connector::connect()
 {
     auto sock = create_noblocking_socket();
-    
+
     if (sock < 0)
     {
         LOG_ERROR << "create socket error";
         return false;
     }
 
-    buf_ev_ = bufferevent_socket_new(event_loop_->getEvBase(), sock, BEV_OPT_CLOSE_ON_FREE);
+    buf_ev_ = bufferevent_socket_new(event_loop_->lowLevelEvBase(),
+                                     sock,
+                                     BEV_OPT_CLOSE_ON_FREE);
 
     if (!buf_ev_)
     {
@@ -31,12 +33,16 @@ bool Connector::connect()
         return false;
     }
 
-    bufferevent_setcb(buf_ev_, nullptr, nullptr, handleEvent, this);
+    bufferevent_setcb(buf_ev_,
+                      nullptr,
+                      nullptr, 
+                      handleEvent, 
+                      this);
 
     auto sock_addr = remote_addr_.getSockAddr();
 
     int sock_len = remote_addr_.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
-    
+
     if (bufferevent_socket_connect(buf_ev_,
                                    (struct sockaddr *)sock_addr,
                                    sock_len) < 0)
@@ -50,7 +56,7 @@ bool Connector::connect()
 void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
 {
     auto self = (Connector *)ctx;
-    
+
     if (events & BEV_EVENT_CONNECTED)
     {
         if (self->new_connect_cb_)
@@ -64,7 +70,7 @@ void Connector::handleEvent(struct bufferevent *bev, short events, void *ctx)
     }
 }
 
-const bufferevent *Connector::getBufferEvent() const
+bufferevent *Connector::getBufferEvent() const
 {
     return buf_ev_;
 }

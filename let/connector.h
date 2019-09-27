@@ -19,7 +19,7 @@ public:
 
   void setNewConnectionCallback(const NewConnectionCallback &);
 
-  const bufferevent *getBufferEvent() const;
+  bufferevent *getBufferEvent() const;
 
 private:
   static void handleEvent(struct bufferevent *bev, short events, void *ctx);

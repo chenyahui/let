@@ -11,6 +11,7 @@ namespace let
 {
 enum LogLevel
 {
+    VERBOSE,
     DEBUG,
     INFO,
     WARN,
@@ -33,6 +34,7 @@ class Logger
     }
 
     static void setLogLevel(LogLevel level);
+    static void setLogOutput();
 
   private:
     std::stringstream body_;
@@ -48,6 +50,7 @@ class Logger
 } // namespace let
 
 #define LOG(level) (::let::Logger(__FILE__, __FUNCTION__, __LINE__, level))
+#define LOG_VERBOSE LOG(::let::LogLevel::VERBOSE)
 #define LOG_DEBUG LOG(::let::LogLevel::DEBUG)
 #define LOG_INFO LOG(::let::LogLevel::INFO)
 #define LOG_WARN LOG(::let::LogLevel::WARN)

@@ -1,33 +1,33 @@
 add_library(
         let
-        tcp_client.h
-        tcp_client.cpp
         tcp_server.h
         tcp_server.cpp
-        tcp_conn.h
-        tcp_conn.cpp
         acceptor.h
         acceptor.cpp
-        connector.h
-        connector.cpp
-        event_loop_thread.h
-        event_loop_thread.cpp
         event_loop.cpp
         event_loop.h
-        logger.h
-        logger.cpp
-        utility.h
-        utility.cpp
+        event_loop_thread_pool.h
+        event_loop_thread_pool.cpp
+        tcp_connection.h
+        tcp_connection.cpp
         buffer.h
         callback.h
+        connector.h
+        connector.cpp
+        tcp_client.h
+        tcp_client.cpp
         ip_addr.h
         ip_addr.cpp
-        generic_conn_pool.h
-        channel.h
-        string_view.h
-        worker.h
-        worker.cpp
+        socket.h
+        socket.cpp
+        utility.h
+        utility.cpp
+        logger.h
+        logger.cpp
         noncopyable.h
+        callback.h
+        threaded_executor.h
+        threaded_executor.cpp
 )
 
-target_link_libraries(let event event_pthreads pthread)
+target_link_libraries(let event pthread)

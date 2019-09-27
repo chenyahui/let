@@ -15,42 +15,57 @@ namespace let
 Acceptor::Acceptor(EventLoop *loop, const IpAddress &ip_addr)
     : loop_(loop)
 {
-
     auto listen_on_addr = ip_addr.getSockAddr();
 
     int sock_len = ip_addr.isIpv6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
 
+    // 设置 LEV_OPT_DISABLED， 暂时不把这个事件加入到event_loop中
     auto flags = LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC | LEV_OPT_REUSEABLE | LEV_OPT_DISABLED;
 
-    listener_ = evconnlistener_new_bind(loop_->getEvBase(),
-                                        handleAccept,
-                                        this,
-                                        flags,
-                                        -1,
-                                        listen_on_addr,
-                                        sock_len);
-    if (listener_ == nullptr)
+    // create socket fd
+    // bind
+    // new listener obj
+    ev_listener_ = evconnlistener_new_bind(loop_->lowLevelEvBase(),
+                                           handleAccept,
+                                           this,
+                                           flags,
+                                           -1,
+                                           listen_on_addr,
+                                           sock_len);
+    if (ev_listener_ == nullptr)
     {
         LOG_FATAL << "couldn't open listener! errno[" << errno << "]: " << strerror(errno);
         return;
     }
 
-    LOG_DEBUG << "start listen on: " << ip_addr.format() << ", fd is " << evconnlistener_get_fd(listener_);
+    evconnlistener_set_error_cb(ev_listener_, handleAcceptError);
 }
 
 Acceptor::~Acceptor()
 {
-    evconnlistener_free(listener_);
+    // 因为我们定义了LEV_OPT_CLOSE_ON_FREE标志，所以free的时候会自动close该fd
+    loop_->execute([=]() {
+        evconnlistener_free(ev_listener_);
+    });
 }
 
+// listen，实际上最终调的不是系统的listen函数
+// 而是将这个事件加入到event_loop中
 void Acceptor::listen()
 {
-    evconnlistener_enable(listener_);
+    loop_->execute([=]() {
+        evconnlistener_enable(ev_listener_);
+        LOG_VERBOSE << "start listen ";
+    });
 }
 
-void Acceptor::stop()
+// 将事件从事件循环中拿出来
+void Acceptor::stopListen()
 {
-    evconnlistener_disable(listener_);
+    // todo 将acceptor的标志置为已关闭
+    loop_->execute([=] {
+        evconnlistener_disable(ev_listener_);
+    });
 }
 
 void Acceptor::handleAccept(struct evconnlistener *listener,
@@ -68,18 +83,23 @@ void Acceptor::handleAccept(struct evconnlistener *listener,
 
     IpAddress ip_addr(address);
 
-    LOG_INFO << "accept new connection: " << ip_addr.format() << ", fd is " << fd;
+    LOG_VERBOSE << "accept new connection: " << ip_addr.format() << ", fd is " << fd;
 
     if (self->new_connect_cb_)
     {
         self->new_connect_cb_(fd, ip_addr);
     }
-
-    LOG_INFO << "accept new connection end";
 }
 
-void Acceptor::setNewConnectionCallback(const NewConnectionCallback &callback)
+void Acceptor::handleAcceptError(struct evconnlistener *, void *ctx)
 {
-    new_connect_cb_ = callback;
+    auto self = (Acceptor *)ctx;
+
+    LOG_ERROR << "accept error";
+}
+
+void Acceptor::setNewConnectionCallback(NewConnectionCallback callback)
+{
+    new_connect_cb_ = std::move(callback);
 }
 } // namespace let
