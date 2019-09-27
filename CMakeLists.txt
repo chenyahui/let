@@ -20,11 +20,10 @@ set(CXX_FLAGS
         -march=native
         -rdynamic
         )
-        
+
+
 add_subdirectory(let)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(examples)
-
-include_directories(./libevent)

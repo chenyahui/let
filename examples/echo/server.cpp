@@ -13,6 +13,10 @@ void log(int severity, const char *msg)
 class MyHandler : public TcpHandler
 {
 public:
+    ~MyHandler(){
+        LOG_VERBOSE << "myhandler deconstruct";
+    }
+
     virtual void onConnected(TcpConnectionPtr)
     {
         LOG_DEBUG << "on connected";

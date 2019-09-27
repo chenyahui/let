@@ -61,7 +61,8 @@ void TcpConnection::write(const char *content, size_t length)
     // 避免一次拷贝
     if (event_loop_->isInEventLoop())
     {
-        if (evbuffer_add(buffer_ev_->output, content, length) != 0)
+
+        if (!write_buffer_.add(content, length))
         {
             // todo write error
             LOG_ERROR << "add buffer error";
@@ -73,7 +74,7 @@ void TcpConnection::write(const char *content, size_t length)
         event_loop_->execute([=]() {
           // write in eventloop
           // 该函数在bufferevent中，会同时enable写事件，所以无需手动enable了
-          if (evbuffer_add(buffer_ev_->output, data.c_str(), data.size()) != 0)
+          if (!write_buffer_.add(content, length))
           {
               // todo write error
               LOG_ERROR << "add buffer error";
