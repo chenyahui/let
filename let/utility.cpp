@@ -18,10 +18,8 @@ std::string format_time(time_t rawtime, const std::string &format)
 
 struct timeval milliseconds_to_timeval(long interval)
 {
-    struct timeval result
-    {
-    };
-    result.tv_sec = interval / 1000;
+    struct timeval result {};
+    result.tv_sec = interval / 100;
     result.tv_usec = (interval % 1000) * 1000;
     return result;
 }

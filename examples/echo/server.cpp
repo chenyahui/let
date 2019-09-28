@@ -3,6 +3,8 @@
 #include <let/logger.h>
 #include <let/utility.h>
 
+#include <sstream>
+
 using namespace let;
 
 void log(int severity, const char *msg)
@@ -32,32 +34,47 @@ public:
     void onMessage(TcpConnectionPtr conn, const char *data, size_t length) override
     {
         LOG_DEBUG << "onMessage:" << data;
-        conn->write(data, length);
+
+        std::stringstream content;
+        content << "HTTP/1.1 200 OK\r\n"
+                << "Content-Type: text/plain\r\n"
+                << "Content-Length: 6\r\n"
+                << "Keep-Alive: true \r\n"
+                << "\r\n"
+                <<"chen\r\n";
+
+        std::string s = content.str();
+        conn->write(s.data(), s.size());
     }
 
     void onDisconnected(TcpConnectionPtr) override
     {
-        LOG_DEBUG << "on disconnected";
+        // LOG_DEBUG << "on disconnected";
     }
 
     void onError(TcpConnectionPtr, int error) override
     {
-        LOG_DEBUG << "on error";
+        // LOG_DEBUG << "on error";
     }
 };
 
 int main()
 {
     EventLoopThreadPool pool(1);
+//    ThreadedExecutorPool thread_pool(2);
+
     TcpServer server;
 
     server.setGroup(&pool);
     server.setHandlerFactory([]() -> TcpHandlerPtr {
         return std::make_shared<MyHandler>();
     });
+    Logger::setLogLevel(ERROR);
+//    server.setExecutor(&thread_pool);
 
     server.listen(IpAddress(8098));
     pool.start();
+//    thread_pool.start();
 
     bool quit = false;
     while (!quit)

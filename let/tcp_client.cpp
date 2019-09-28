@@ -114,3 +114,9 @@ void TcpClient::onError(TcpConnectionPtr tcp_conn, int error)
 void TcpClient::onWriteCompleted(TcpConnectionPtr)
 {
 }
+
+void TcpClient::disConnect()
+{}
+
+void TcpClient::stop()
+{}

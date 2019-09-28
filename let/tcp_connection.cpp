@@ -56,6 +56,11 @@ TcpConnection::~TcpConnection()
     });
 }
 
+void TcpConnection::write(const std::string& content)
+{
+    write(content.c_str(), content.size());
+}
+
 void TcpConnection::write(const char *content, size_t length)
 {
     // 避免一次拷贝
@@ -67,17 +72,25 @@ void TcpConnection::write(const char *content, size_t length)
             // todo write error
             LOG_ERROR << "add buffer error";
         }
+        else
+        {
+            LOG_VERBOSE << "write success: " << content;
+        }
     }
     else
     {
         std::string data(content, length);
-        event_loop_->execute([=]() {
+        event_loop_->execute([this, data]() {
           // write in eventloop
           // 该函数在bufferevent中，会同时enable写事件，所以无需手动enable了
-          if (!write_buffer_.add(content, length))
+          if (!write_buffer_.add(data.data(), data.size()))
           {
               // todo write error
               LOG_ERROR << "add buffer error";
+          }
+          else
+          {
+              LOG_VERBOSE << "write success: " << data;
           }
         });
     }
@@ -132,6 +145,7 @@ void TcpConnection::readAbleCallback(struct bufferevent *bev, void *ctx)
 
 void TcpConnection::writeCompleteCallback(struct bufferevent *bev, void *ctx)
 {
+    LOG_VERBOSE << "write complete callback";
     auto self = (TcpConnection *) ctx;
 
     self->last_write_time_ = get_monotonic_milliseconds();
@@ -148,7 +162,6 @@ void TcpConnection::eventCallback(struct bufferevent *bev, short events, void *c
 {
     auto self = (TcpConnection *) ctx;
 
-    bool finished = false;
     if (events & BEV_EVENT_EOF)
     {
         LOG_VERBOSE << "tcp connection close callback called";
@@ -223,12 +236,12 @@ EventLoop *TcpConnection::getLoop() const
     return event_loop_;
 }
 
-uint64_t TcpConnection::lastReadTime() const
+int64_t TcpConnection::lastReadTime() const
 {
     return last_read_time_;
 }
 
-uint64_t TcpConnection::lastWriteTime() const
+int64_t TcpConnection::lastWriteTime() const
 {
     return last_write_time_;
 }

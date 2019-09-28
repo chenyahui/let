@@ -91,9 +91,9 @@ void TcpServer::listen(const IpAddress &inet_addr, const ServerOptions &options)
 
         io_context_map_[loop] = io_context;
 
-//        loop->runEvery(1000, std::bind(&TcpServer::checkIdleConnections,
-//                                       this,
-//                                       io_context));
+        loop->runEvery(1000, std::bind(&TcpServer::checkIdleConnections,
+                                       this,
+                                       io_context));
     }
 
     acceptor_->listen();
@@ -187,11 +187,11 @@ void TcpServer::onMessage(TcpConnectionPtr tcp_conn)
         return;
     }
 
+    std::string msg = read_buf.retrieveAsString(ret);
+
     // if task pool is setuped, handle this message at task thread pool
     if (task_pool_ != nullptr)
     {
-        std::string msg = read_buf.retrieveAsString(ret);
-
         task_pool_->submit([tcp_conn, msg, handler]() {
             handler->onMessage(tcp_conn, msg.data(), msg.size());
         });
@@ -199,8 +199,7 @@ void TcpServer::onMessage(TcpConnectionPtr tcp_conn)
     else
     {
         // just handle message at io thread
-        handler->onMessage(tcp_conn, data, ret);
-        read_buf.consume(ret);
+        handler->onMessage(tcp_conn, msg.data(), msg.size());
     }
 }
 void TcpServer::onDisconnected(TcpConnectionPtr tcp_conn)

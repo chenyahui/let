@@ -28,6 +28,8 @@ public:
 
     ~TcpConnection();
 
+    void write(const std::string& content);
+
     void write(const char *content, size_t length);
 
     Buffer &readBuffer();
@@ -50,9 +52,9 @@ public:
 
     const IpAddress &remoteAddr() const;
 
-    uint64_t lastReadTime() const;
+    int64_t lastReadTime() const;
 
-    uint64_t lastWriteTime() const;
+    int64_t lastWriteTime() const;
 
     // set callbacks
     void setMessageCallback(MessageCallback cb);
@@ -92,8 +94,8 @@ private:
     Buffer read_buffer_;
     Buffer write_buffer_;
 
-    uint64_t last_read_time_ = 0;
-    uint64_t last_write_time_ = 0;
+    int64_t last_read_time_ = 0;
+    int64_t last_write_time_ = 0;
 };
 
 } // namespace let
