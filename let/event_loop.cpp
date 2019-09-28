@@ -1,5 +1,4 @@
 #include <string.h>
-#include <sys/eventfd.h>
 #include <unistd.h>
 
 #include "event_loop.h"
@@ -8,24 +7,17 @@
 
 namespace let
 {
-int createEventfd()
-{
-    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-    if (evtfd < 0)
-    {
-        LOG_DEBUG << "Failed in eventfd";
-        abort();
-    }
-    return evtfd;
-}
-
 EventLoop::EventLoop()
     : ev_base_(event_base_new()),
-      current_loop_thread_id_(std::this_thread::get_id()),
-      wakeup_fd_(createEventfd())
+      current_loop_thread_id_(std::this_thread::get_id())
 {
+
+    if(pipe(wakeup_pipe_) != 0){
+        LOG_FATAL << "failed create pipe";
+    }
+
     wakeup_event_ = event_new(ev_base_,
-                              wakeup_fd_,
+                              wakeup_pipe_[0],
                               EV_READ | EV_PERSIST,
                               handleWakeUpEvent,
                               this);
@@ -73,8 +65,10 @@ void EventLoop::execute(Task task, bool queued)
 
 void EventLoop::wakeUp()
 {
+    // close the read pipe
+
     uint64_t one = 1;
-    ssize_t n = ::write(wakeup_fd_, &one, sizeof one);
+    ssize_t n = ::write(wakeup_pipe_[1], &one, sizeof one);
     if (n != sizeof one)
     {
         LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
@@ -84,6 +78,7 @@ void EventLoop::wakeUp()
 void EventLoop::handleWakeUpEvent(evutil_socket_t fd, short, void *ctx)
 {
     auto self = (EventLoop *)ctx;
+
 
     // 将数据读出来，以免可读事件一直通知
     uint64_t one;

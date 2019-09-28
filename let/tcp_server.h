@@ -20,7 +20,7 @@ struct ServerOptions
 {
     int idle_timeout_sec = -1; // Default: -1(disabled)
 
-    uint32_t max_connection_nums = -1;
+    int32_t max_connection_nums = -1;
 };
 
 class TcpServer : NonCopyAble
@@ -77,7 +77,7 @@ private:
 
     std::map<EventLoop *, IoContext*> io_context_map_;
 
-    std::unique_ptr<Acceptor> acceptor_;
+    std::unique_ptr<Acceptor> acceptor_ = nullptr;
 
     std::atomic_uint connection_nums_;
 

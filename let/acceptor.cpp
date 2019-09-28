@@ -4,6 +4,7 @@
 
 #include <event2/util.h>
 #include <cstring>
+#include <cerrno>
 
 #include "acceptor.h"
 #include "logger.h"

@@ -26,7 +26,7 @@ public:
     int splitMessage(TcpConnectionPtr, const char *data, size_t length) override
     {
         LOG_DEBUG << "split message";
-        return length;
+        return static_cast<int>(length);
     }
 
     void onMessage(TcpConnectionPtr conn, const char *data, size_t length) override

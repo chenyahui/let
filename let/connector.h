@@ -17,7 +17,7 @@ public:
 
   bool connect();
 
-  void setNewConnectionCallback(const NewConnectionCallback &);
+  void setNewConnectionCallback(NewConnectionCallback);
 
   bufferevent *getBufferEvent() const;
 

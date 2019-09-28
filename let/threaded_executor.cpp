@@ -3,6 +3,18 @@
 using namespace let;
 
 ThreadedExecutor::ThreadedExecutor()
+    : thread_(std::bind(&ThreadedExecutor::threadFunc, this))
+{
+
+}
+
+
+ThreadedExecutor::~ThreadedExecutor()
+{
+    stop();
+}
+
+void ThreadedExecutor::threadFunc()
 {
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -27,11 +39,6 @@ ThreadedExecutor::ThreadedExecutor()
             }
         }
     }
-}
-
-ThreadedExecutor::~ThreadedExecutor()
-{
-    stop();
 }
 
 void ThreadedExecutor::submit(Task func)

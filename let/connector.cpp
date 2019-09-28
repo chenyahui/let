@@ -75,8 +75,8 @@ bufferevent *Connector::getBufferEvent() const
     return buf_ev_;
 }
 
-void Connector::setNewConnectionCallback(const NewConnectionCallback &cb)
+void Connector::setNewConnectionCallback(NewConnectionCallback cb)
 {
-    new_connect_cb_ = cb;
+    new_connect_cb_ = std::move(cb);
 }
 } // namespace let

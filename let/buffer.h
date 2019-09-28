@@ -1,5 +1,6 @@
 #ifndef LET_BUFFER_H
 #define LET_BUFFER_H
+
 #include <event2/buffer.h>
 
 namespace let
@@ -15,7 +16,7 @@ public:
     {
     }
 
-    Buffer(bool create_buf = false)
+    explicit Buffer(bool create_buf = false)
     {
         if (create_buf)
         {

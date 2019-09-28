@@ -68,10 +68,10 @@ private:
     std::vector<Task> pendding_jobs_;
     std::map<event *, Task> timer_callbacks_;
 
-    event_base *ev_base_;
+    event_base *ev_base_ = nullptr;
 
-    event *wakeup_event_;
-    int wakeup_fd_ = -1;
+    event *wakeup_event_ = nullptr;
+    int wakeup_pipe_[2];
 
     std::thread::id current_loop_thread_id_;
 };
