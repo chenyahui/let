@@ -12,8 +12,7 @@ void log(int severity, const char *msg)
     LOG_DEBUG << msg;
 }
 
-class MyHandler : public TcpHandler
-{
+class MyHandler : public TcpHandler {
 public:
     ~MyHandler()
     {
@@ -41,7 +40,7 @@ public:
                 << "Content-Length: 6\r\n"
                 << "Keep-Alive: true \r\n"
                 << "\r\n"
-                <<"chen\r\n";
+                << "chen\r\n";
 
         std::string s = content.str();
         conn->write(s.data(), s.size());
@@ -60,8 +59,8 @@ public:
 
 int main()
 {
-    EventLoopThreadPool pool(1);
-//    ThreadedExecutorPool thread_pool(2);
+    EventLoopThreadPool pool(3);
+    //    ThreadedExecutorPool thread_pool(2);
 
     TcpServer server;
 
@@ -70,17 +69,13 @@ int main()
         return std::make_shared<MyHandler>();
     });
     Logger::setLogLevel(ERROR);
-//    server.setExecutor(&thread_pool);
+    //    server.setExecutor(&thread_pool);
 
     server.listen(IpAddress(8098));
     pool.start();
-//    thread_pool.start();
+    //    thread_pool.start();
 
-    bool quit = false;
-    while (!quit)
-    {
-        let::sleep_ms(1000);
-    }
+    loop_util_ask_to_quit();
 
     std::cout << "begin stop";
     server.gracefullyStop();

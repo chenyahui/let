@@ -8,9 +8,9 @@
 #include "logger.h"
 #include "utility.h"
 
-namespace let
-{
-LogLevel Logger::g_log_level = VERBOSE;
+namespace let {
+LogLevel Logger::g_log_level_ = VERBOSE;
+Logger::OutPutFunc Logger::printer_;
 
 Logger::Logger(const std::string &file_name, const std::string &func_name, int line, LogLevel level)
     : file_name_(file_name),
@@ -22,21 +22,25 @@ Logger::Logger(const std::string &file_name, const std::string &func_name, int l
 
 void Logger::setLogLevel(let::LogLevel level)
 {
-    g_log_level = level;
+    g_log_level_ = level;
 }
 
 Logger::~Logger()
 {
-    if (level_ < g_log_level)
-    {
+    if (level_ < g_log_level_) {
         return;
     }
 
     std::string msg = body_.str();
+
+    if (printer_) {
+        printer_(level_, msg);
+        return;
+    }
+
     std::string level_str = "INFO";
 
-    switch (level_)
-    {
+    switch (level_) {
     case VERBOSE:
         level_str = "VERBOSE";
         break;
@@ -52,8 +56,7 @@ Logger::~Logger()
     case ERROR:
         level_str = "ERROR";
         break;
-    case FATAL:
-    {
+    case FATAL: {
         level_str = "FATAL";
         break;
     }
@@ -64,28 +67,24 @@ Logger::~Logger()
 
     char *format_msg = new char[now_time_str.size() + file_name_.size() + func_name_.size() + level_str.size() + msg.size() + 50];
 
-    sprintf(format_msg, "%s [%s:%s:%d] [%s] %s",
-            now_time_str.c_str(),
-            file_name_.c_str(),
-            func_name_.c_str(),
-            line_,
-            level_str.c_str(),
-            msg.c_str());
+    sprintf(format_msg, "%s [%s:%s:%d] [%s] %s", now_time_str.c_str(), file_name_.c_str(), func_name_.c_str(), line_, level_str.c_str(), msg.c_str());
 
-    if (level_ > LogLevel::INFO)
-    {
+    if (level_ > LogLevel::INFO) {
         std::cerr << format_msg << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << format_msg << std::endl;
     }
 
     delete[] format_msg;
 
-    if (level_ == FATAL)
-    {
+    if (level_ == FATAL) {
         exit(-1);
     }
 }
-} // namespace let
+
+void Logger::setLogOutput(OutPutFunc func)
+{
+    printer_ = std::move(func);
+}
+
+}  // namespace let

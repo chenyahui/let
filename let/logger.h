@@ -6,11 +6,10 @@
 #define LET_LOGGER_H
 
 #include <sstream>
+#include <functional>
 
-namespace let
-{
-enum LogLevel
-{
+namespace let {
+enum LogLevel {
     VERBOSE,
     DEBUG,
     INFO,
@@ -19,9 +18,10 @@ enum LogLevel
     FATAL,
 };
 
-class Logger
-{
-  public:
+class Logger {
+public:
+    using OutPutFunc = std::function<void(LogLevel, const std::string &)>;
+
     Logger(const std::string &file_name, const std::string &func_name, int line, LogLevel level);
 
     ~Logger();
@@ -34,9 +34,10 @@ class Logger
     }
 
     static void setLogLevel(LogLevel level);
-    static void setLogOutput();
 
-  private:
+    static void setLogOutput(OutPutFunc func);
+
+private:
     std::stringstream body_;
     LogLevel level_;
 
@@ -44,10 +45,11 @@ class Logger
     std::string func_name_;
     int line_;
 
-  private:
-    static LogLevel g_log_level;
+private:
+    static LogLevel g_log_level_;
+    static OutPutFunc printer_;
 };
-} // namespace let
+}  // namespace let
 
 #define LOG(level) (::let::Logger(__FILE__, __FUNCTION__, __LINE__, level))
 #define LOG_VERBOSE LOG(::let::LogLevel::VERBOSE)
@@ -56,4 +58,4 @@ class Logger
 #define LOG_WARN LOG(::let::LogLevel::WARN)
 #define LOG_ERROR LOG(::let::LogLevel::ERROR)
 #define LOG_FATAL LOG(::let::LogLevel::FATAL)
-#endif //LET_LOGGER_H
+#endif  //LET_LOGGER_H
