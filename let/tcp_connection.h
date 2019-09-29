@@ -9,11 +9,9 @@
 #include "callback.h"
 #include "buffer.h"
 
-namespace let
-{
+namespace let {
 
-class TcpConnection : public std::enable_shared_from_this<TcpConnection>
-{
+class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
     TcpConnection(EventLoop *loop,
                   evutil_socket_t fd,
@@ -98,5 +96,5 @@ private:
     int64_t last_write_time_ = 0;
 };
 
-} // namespace let
+}  // namespace let
 #endif

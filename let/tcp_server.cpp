@@ -1,3 +1,4 @@
+#include <memory>
 #include <mutex>
 #include <map>
 #include <set>
@@ -73,7 +74,7 @@ void TcpServer::listen(const IpAddress &inet_addr, const ServerOptions &options)
     listen_addr_ = inet_addr;
 
     // select a event_loop thread as acceptor thread
-    acceptor_ = std::move(std::unique_ptr<Acceptor>(new Acceptor(parent_group_->next()->getEventLoop(), inet_addr)));
+    acceptor_ = std::move(std::make_unique<Acceptor>(parent_group_->next()->getEventLoop(), inet_addr));
 
     acceptor_->setNewConnectionCallback(std::bind(&TcpServer::newConnection,
                                                   this,

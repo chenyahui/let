@@ -1,5 +1,6 @@
 #include "event_loop_thread_pool.h"
 
+#include <memory>
 #include <thread>
 #include <functional>
 
@@ -30,7 +31,7 @@ void EventLoopThread::threadFunc()
     // event loop must construct at thread
     {
         std::unique_lock<std::mutex> lock(event_loop_init_mutex_);
-        event_loop_ = std::move(std::unique_ptr<EventLoop>(new EventLoop()));
+        event_loop_ = std::move(std::make_unique<EventLoop>());
         event_loop_init_cond_.notify_one();
     }
 
@@ -44,8 +45,7 @@ void EventLoopThread::threadFunc()
 
 EventLoop *EventLoopThread::getEventLoop()
 {
-    if (!event_loop_)
-    {
+    if (!event_loop_) {
         std::unique_lock<std::mutex> lock(event_loop_init_mutex_);
         event_loop_init_cond_.wait(lock, [this]() { return event_loop_ != nullptr; });
     }
@@ -68,9 +68,8 @@ bool EventLoopThread::isRunning()
 
 EventLoopThreadPool::EventLoopThreadPool(size_t num)
 {
-    for (size_t i = 0; i < num; i++)
-    {
-        event_loop_thread_pool_.emplace_back(std::move(std::unique_ptr<EventLoopThread>(new EventLoopThread())));
+    for (size_t i = 0; i < num; i++) {
+        event_loop_thread_pool_.emplace_back(std::move(std::make_unique<EventLoopThread>()));
     }
 }
 
@@ -91,16 +90,14 @@ size_t EventLoopThreadPool::size() const
 
 void EventLoopThreadPool::stop()
 {
-    for (auto &i : event_loop_thread_pool_)
-    {
+    for (auto &i : event_loop_thread_pool_) {
         i->stop();
     }
 }
 
 void EventLoopThreadPool::start()
 {
-    for (auto &i : event_loop_thread_pool_)
-    {
+    for (auto &i : event_loop_thread_pool_) {
         i->start();
     }
 }

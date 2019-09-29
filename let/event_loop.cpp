@@ -5,14 +5,12 @@
 #include "utility.h"
 #include "logger.h"
 
-namespace let
-{
+namespace let {
 EventLoop::EventLoop()
     : ev_base_(event_base_new()),
       current_loop_thread_id_(std::this_thread::get_id())
 {
-
-    if(pipe(wakeup_pipe_) != 0){
+    if (pipe(wakeup_pipe_) != 0) {
         LOG_FATAL << "failed create pipe";
     }
 
@@ -43,21 +41,16 @@ event_base *EventLoop::lowLevelEvBase() const
 
 void EventLoop::execute(Task task, bool queued)
 {
-    if (isInEventLoop())
-    {
+    if (isInEventLoop()) {
         task();
-    }
-    else if (queued)
-    {
+    } else if (queued) {
         {
             std::lock_guard<std::mutex> lock_guard(mutex_);
             pendding_jobs_.emplace_back(std::move(task));
         }
 
         wakeUp();
-    }
-    else
-    {
+    } else {
         std::lock_guard<std::mutex> lock_guard(mutex_);
         task();
     }
@@ -69,8 +62,7 @@ void EventLoop::wakeUp()
 
     uint64_t one = 1;
     ssize_t n = ::write(wakeup_pipe_[1], &one, sizeof one);
-    if (n != sizeof one)
-    {
+    if (n != sizeof one) {
         LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
     }
 }
@@ -79,10 +71,10 @@ void EventLoop::handleWakeUpEvent(evutil_socket_t fd, short, void *ctx)
 {
     auto self = (EventLoop *)ctx;
 
-
     // 将数据读出来，以免可读事件一直通知
     uint64_t one;
-    ::read(fd, &one, sizeof one);
+    while (::read(fd, &one, sizeof one) > 0) {
+    }
 
     // 先把事件都取出来, 减少锁空间
     std::vector<Task> tasks;
@@ -92,14 +84,12 @@ void EventLoop::handleWakeUpEvent(evutil_socket_t fd, short, void *ctx)
         tasks.swap(self->pendding_jobs_);
     }
 
-    for (auto &task : tasks)
-    {
+    for (auto &task : tasks) {
         task();
     }
 }
 
-struct TimerInfo
-{
+struct TimerInfo {
     TimerInfo(struct event *ev, EventLoop *loop)
         : timer_event(ev), loop(loop)
     {
@@ -128,16 +118,17 @@ TimerId EventLoop::registerTimer(long milliseconds, Task task, bool run_every)
     auto timer_info = new TimerInfo(timer_ev, this);
     timer_info->is_presist = run_every;
     TimerId timer_id(timer_info);
-    execute([=]() {
-        timer_callbacks_[timer_ev] = std::move(task);
+    execute([job = std::move(task),
+             this,
+             run_every,
+             timer_ev,
+             timer_info,
+             milliseconds]() {
+        timer_callbacks_[timer_ev] = std::move(job);
 
         short flags = static_cast<short>(run_every ? EV_PERSIST : 0);
 
-        event_assign(timer_ev, ev_base_,
-                     -1,
-                     flags,
-                     onTimer,
-                     timer_info);
+        event_assign(timer_ev, ev_base_, -1, flags, onTimer, timer_info);
 
         struct timeval time_val = milliseconds_to_timeval(milliseconds);
 
@@ -150,14 +141,12 @@ TimerId EventLoop::registerTimer(long milliseconds, Task task, bool run_every)
 void EventLoop::onTimer(int, short, void *ctx)
 {
     auto timer_info = (TimerInfo *)ctx;
-    if (timer_info && timer_info->timer_event)
-    {
+    if (timer_info && timer_info->timer_event) {
         auto self = timer_info->loop;
         self->timer_callbacks_[timer_info->timer_event]();
 
         // 如果是一次性的, 则释放空间
-        if (!timer_info->is_presist)
-        {
+        if (!timer_info->is_presist) {
             // cancelTimer();
         }
     }
@@ -165,12 +154,10 @@ void EventLoop::onTimer(int, short, void *ctx)
 
 void EventLoop::cancelTimer(TimerId &timer_id)
 {
-    if (timer_id.info && timer_id.info->timer_event)
-    {
+    if (timer_id.info && timer_id.info->timer_event) {
         execute([this, &timer_id]() {
             auto timer_ev = timer_id.info->timer_event;
-            if (timer_ev && timer_callbacks_.find(timer_ev) != timer_callbacks_.end())
-            {
+            if (timer_ev && timer_callbacks_.find(timer_ev) != timer_callbacks_.end()) {
                 evtimer_del(timer_ev);
                 timer_callbacks_.erase(timer_ev);
                 event_free(timer_ev);
@@ -194,4 +181,4 @@ void EventLoop::startLoop()
     // 没有事件时也不退出，一直循环
     event_base_loop(ev_base_, EVLOOP_NO_EXIT_ON_EMPTY);
 }
-} // namespace let
+}  // namespace let

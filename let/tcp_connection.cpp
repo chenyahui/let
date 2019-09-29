@@ -79,13 +79,12 @@ void TcpConnection::write(const char *content, size_t length)
     }
     else
     {
-        std::string data(content, length);
-        event_loop_->execute([this, data]() {
+        std::string msg(content, length);
+        event_loop_->execute([this, data = std::move(msg)]() {
           // write in eventloop
           // 该函数在bufferevent中，会同时enable写事件，所以无需手动enable了
-          if (!write_buffer_.add(data.data(), data.size()))
+          if (!write_buffer_.add(data.c_str(), data.size()))
           {
-              // todo write error
               LOG_ERROR << "add buffer error";
           }
           else

@@ -1,5 +1,7 @@
 #include <assert.h>
 
+#include <memory>
+
 #include "tcp_client.h"
 #include "socket.h"
 #include "logger.h"
@@ -8,7 +10,6 @@ using namespace let;
 
 TcpClient::TcpClient()
 {
-
 }
 
 TcpClient &TcpClient::setEventLoop(EventLoop *event_loop)
@@ -23,7 +24,7 @@ TcpClient &TcpClient::setExecutor(ThreadedExecutorPool *task_pool)
     return *this;
 }
 
-TcpClient &TcpClient::setHandler(TcpHandler* handler)
+TcpClient &TcpClient::setHandler(TcpHandler *handler)
 {
     handler_ = handler;
     return *this;
@@ -37,8 +38,8 @@ bool TcpClient::connect(const IpAddress &remote_addr)
 
     remote_addr_ = remote_addr;
 
-    connector_ = std::move(std::unique_ptr<Connector>(new Connector(event_loop_,
-                                                                    remote_addr)));
+    connector_ = std::move(std::make_unique<Connector>(event_loop_,
+                                                       remote_addr));
 
     connector_->setNewConnectionCallback(std::bind(&TcpClient::newConnection,
                                                    this,
@@ -59,7 +60,7 @@ void TcpClient::newConnection(evutil_socket_t sock_fd)
                                                     sock_fd,
                                                     remote_addr_,
                                                     local_addr);
-    
+
     tcp_conn->enableRead();
 
     handler_->onConnected(tcp_conn);
@@ -69,32 +70,26 @@ void TcpClient::onMessage(TcpConnectionPtr tcp_conn)
 {
     auto &read_buf = tcp_conn->readBuffer();
 
-     // make buffer contiguous
+    // make buffer contiguous
     auto data = read_buf.pullUp();
 
-     int ret = handler_->splitMessage(tcp_conn, data, read_buf.size());
-      // the message is imcompleted, need more buffer
-    if (ret == 0)
-    {
+    int ret = handler_->splitMessage(tcp_conn, data, read_buf.size());
+    // the message is imcompleted, need more buffer
+    if (ret == 0) {
         return;
-    }
-    else if (ret < 0)
-    {
+    } else if (ret < 0) {
         LOG_ERROR << "msg is error";
         return;
     }
 
-     // if task pool is setuped, handle this message at task thread pool
-    if (task_pool_ != nullptr)
-    {
+    // if task pool is setuped, handle this message at task thread pool
+    if (task_pool_ != nullptr) {
         std::string msg = read_buf.retrieveAsString(ret);
 
         task_pool_->submit([tcp_conn, msg, this]() {
             handler_->onMessage(tcp_conn, msg.data(), msg.size());
         });
-    }
-    else
-    {
+    } else {
         // just handle message at io thread
         handler_->onMessage(tcp_conn, data, ret);
         read_buf.consume(ret);
@@ -116,7 +111,9 @@ void TcpClient::onWriteCompleted(TcpConnectionPtr)
 }
 
 void TcpClient::disConnect()
-{}
+{
+}
 
 void TcpClient::stop()
-{}
+{
+}
