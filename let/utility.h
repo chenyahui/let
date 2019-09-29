@@ -21,5 +21,10 @@ time_t get_now_time_t();
 std::string format_time(time_t, const std::string &format);
 
 void sleep_ms(int64_t milliseconds);
+
+bool is_ask_to_quit();
+
+void loop_util_ask_to_quit();
+
 } // namespace let
 #endif //LET_UTILITY_H
