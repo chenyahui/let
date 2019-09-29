@@ -118,15 +118,18 @@ TimerId EventLoop::registerTimer(long milliseconds, Task task, bool run_every)
     auto timer_info = new TimerInfo(timer_ev, this);
     timer_info->is_presist = run_every;
     TimerId timer_id(timer_info);
+
+
     execute([job = std::move(task),
              this,
-             run_every,
-             timer_ev,
              timer_info,
-             milliseconds]() {
+             milliseconds]() mutable{
+
+        auto timer_ev = timer_info->timer_event;
+
         timer_callbacks_[timer_ev] = std::move(job);
 
-        short flags = static_cast<short>(run_every ? EV_PERSIST : 0);
+        auto flags = static_cast<short>(timer_info->is_presist ? EV_PERSIST : 0);
 
         event_assign(timer_ev, ev_base_, -1, flags, onTimer, timer_info);
 

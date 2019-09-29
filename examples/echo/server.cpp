@@ -68,7 +68,7 @@ int main()
     server.setHandlerFactory([]() -> TcpHandlerPtr {
         return std::make_shared<MyHandler>();
     });
-    Logger::setLogLevel(ERROR);
+//    Logger::setLogLevel(ERROR);
     //    server.setExecutor(&thread_pool);
 
     server.listen(IpAddress(8098));
@@ -77,7 +77,7 @@ int main()
 
     loop_util_ask_to_quit();
 
-    std::cout << "begin stop";
+    LOG_INFO << "begin stop";
     server.gracefullyStop();
     pool.stop();
     return 0;

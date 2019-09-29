@@ -78,7 +78,7 @@ EventLoopThread *EventLoopThreadPool::next()
     return event_loop_thread_pool_[counter_++ % event_loop_thread_pool_.size()].get();
 }
 
-EventLoopThread *const EventLoopThreadPool::at(size_t index)
+EventLoopThread *EventLoopThreadPool::at(size_t index)
 {
     return event_loop_thread_pool_[index].get();
 }

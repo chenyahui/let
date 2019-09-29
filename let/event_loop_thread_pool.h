@@ -48,14 +48,13 @@ public:
 
     EventLoopThread *next();
 
-    EventLoopThread *const at(size_t index);
+    EventLoopThread *at(size_t index);
 
     size_t size() const;
 
     void stop();
 
     void start();
-    
 
 private:
     std::vector<std::unique_ptr<EventLoopThread>> event_loop_thread_pool_;
