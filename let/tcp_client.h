@@ -6,7 +6,7 @@
 #include "callback.h"
 #include "tcp_handler.h"
 #include "threaded_executor.h"
-#include "event_loop_thread_pool.h"
+#include "event_executor_group.h"
 #include "connector.h"
 
 namespace let

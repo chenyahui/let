@@ -1,24 +1,24 @@
-#include "event_loop_thread_pool.h"
+#include "event_executor_group.h"
 
 #include <memory>
 #include <thread>
 #include <functional>
 
-#include "event_loop_thread_pool.h"
+#include "event_executor_group.h"
 
 using namespace let;
 
-EventLoopThread::EventLoopThread()
-    : thread_(std::bind(&EventLoopThread::threadFunc, this))
+EventExecutor::EventExecutor()
+    : thread_(std::bind(&EventExecutor::threadFunc, this))
 {
 }
 
-EventLoopThread::~EventLoopThread()
+EventExecutor::~EventExecutor()
 {
     stop();
 }
 
-void EventLoopThread::stop()
+void EventExecutor::stop()
 {
     std::lock_guard<std::mutex> lock_guard(mutex_);
     is_running_ = false;
@@ -26,7 +26,7 @@ void EventLoopThread::stop()
     thread_.join();
 }
 
-void EventLoopThread::threadFunc()
+void EventExecutor::threadFunc()
 {
     // event loop must construct at thread
     {
@@ -43,7 +43,7 @@ void EventLoopThread::threadFunc()
     event_loop_->startLoop();
 }
 
-EventLoop *EventLoopThread::getEventLoop()
+EventLoop *EventExecutor::getEventLoop()
 {
     if (!event_loop_) {
         std::unique_lock<std::mutex> lock(event_loop_init_mutex_);
@@ -53,7 +53,7 @@ EventLoop *EventLoopThread::getEventLoop()
     return event_loop_.get();
 }
 
-void EventLoopThread::start()
+void EventExecutor::start()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     is_running_ = true;
@@ -61,41 +61,41 @@ void EventLoopThread::start()
     cond_.notify_one();
 }
 
-bool EventLoopThread::isRunning()
+bool EventExecutor::isRunning()
 {
     return is_running_;
 }
 
-EventLoopThreadPool::EventLoopThreadPool(size_t num)
+EventExecutorGroup::EventExecutorGroup(size_t num)
 {
     for (size_t i = 0; i < num; i++) {
-        event_loop_thread_pool_.emplace_back(std::move(std::make_unique<EventLoopThread>()));
+        event_loop_thread_pool_.emplace_back(std::move(std::make_unique<EventExecutor>()));
     }
 }
 
-EventLoopThread *EventLoopThreadPool::next()
+EventExecutor *EventExecutorGroup::next()
 {
     return event_loop_thread_pool_[counter_++ % event_loop_thread_pool_.size()].get();
 }
 
-EventLoopThread *EventLoopThreadPool::at(size_t index)
+EventExecutor *EventExecutorGroup::at(size_t index)
 {
     return event_loop_thread_pool_[index].get();
 }
 
-size_t EventLoopThreadPool::size() const
+size_t EventExecutorGroup::size() const
 {
     return event_loop_thread_pool_.size();
 }
 
-void EventLoopThreadPool::stop()
+void EventExecutorGroup::stop()
 {
     for (auto &i : event_loop_thread_pool_) {
         i->stop();
     }
 }
 
-void EventLoopThreadPool::start()
+void EventExecutorGroup::start()
 {
     for (auto &i : event_loop_thread_pool_) {
         i->start();

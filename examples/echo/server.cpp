@@ -59,7 +59,7 @@ public:
 
 int main()
 {
-    EventLoopThreadPool pool(3);
+    EventExecutorGroup pool(3);
     //    ThreadedExecutorPool thread_pool(2);
 
     TcpServer server;

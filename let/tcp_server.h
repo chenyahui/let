@@ -10,7 +10,7 @@
 #include "ip_addr.h"
 #include "noncopyable.h"
 #include "acceptor.h"
-#include "event_loop_thread_pool.h"
+#include "event_executor_group.h"
 #include "threaded_executor.h"
 #include "tcp_handler.h"
 
@@ -30,9 +30,9 @@ public:
     
     ~TcpServer();
     
-    TcpServer &setGroup(EventLoopThreadPool *event_loop_group);
+    TcpServer &setGroup(EventExecutorGroup *event_loop_group);
 
-    TcpServer &setGroup(EventLoopThreadPool *parent_group, EventLoopThreadPool *child_group);
+    TcpServer &setGroup(EventExecutorGroup *parent_group, EventExecutorGroup *child_group);
 
     TcpServer &setHandlerFactory(TcpHandlerFactory handler_factory);
 
@@ -68,8 +68,8 @@ private:
     void cleanUpLoop(EventLoop* event_loop);
 
 private:
-    EventLoopThreadPool *parent_group_ = nullptr;
-    EventLoopThreadPool *child_group_ = nullptr;
+    EventExecutorGroup *parent_group_ = nullptr;
+    EventExecutorGroup *child_group_ = nullptr;
 
     TcpHandlerFactory handler_factory_;
 

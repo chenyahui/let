@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #include "tcp_server.h"
-#include "event_loop_thread_pool.h"
+#include "event_executor_group.h"
 #include "tcp_connection.h"
 #include "logger.h"
 #include "tcp_handler.h"
@@ -32,13 +32,13 @@ TcpServer::~TcpServer()
     gracefullyStop();
 }
 
-TcpServer &TcpServer::setGroup(EventLoopThreadPool *event_loop_group)
+TcpServer &TcpServer::setGroup(EventExecutorGroup *event_loop_group)
 {
     setGroup(event_loop_group, event_loop_group);
     return *this;
 }
 
-TcpServer &TcpServer::setGroup(EventLoopThreadPool *parent, EventLoopThreadPool *child)
+TcpServer &TcpServer::setGroup(EventExecutorGroup *parent, EventExecutorGroup *child)
 {
     parent_group_ = parent;
     child_group_ = child;

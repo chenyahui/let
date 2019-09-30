@@ -6,8 +6,8 @@ add_library(
         acceptor.cpp
         event_loop.cpp
         event_loop.h
-        event_loop_thread_pool.h
-        event_loop_thread_pool.cpp
+        event_executor_group.h
+        event_executor_group.cpp
         tcp_connection.h
         tcp_connection.cpp
         buffer.h
@@ -28,6 +28,7 @@ add_library(
         callback.h
         threaded_executor.h
         threaded_executor.cpp
+        event_executor.h
 )
 
 target_link_libraries(let event pthread)
